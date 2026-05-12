@@ -108,6 +108,7 @@ class MakeAddonCommand extends Command
 	{
 		$dirs = [
 			'app/Http/Controllers',
+			'app/Http/Controllers/Home',
 			'app/Http/Requests',
 			'app/Helpers',
 			'app/Models',
@@ -156,6 +157,7 @@ class MakeAddonCommand extends Command
 			'web.stub'           => 'routes/web.php',
 			'config.stub'        => "config/{$vars['slug']}.php",
 			'views/welcome.stub' => 'resources/views/welcome.blade.php',
+			'Http/Controllers/Home/HomeController.stub' => 'app/Http/Controllers/Home/HomeController.php',
 			'gitignore.stub'     => '.gitignore',
 			'env.stub'           => '.env.example',
 		];
@@ -257,6 +259,8 @@ class MakeAddonCommand extends Command
 		if ($this->features['livewire']) {
 			$bootLines[] = "\t\t\\Livewire\\Livewire::componentNamespace('{$ns}\\\\Livewire', '{$slug}');";
 		}
+
+		$bootLines[] = "\n\t\tapp(\\{$ns}\\Http\\Controllers\\Home\\HomeController::class);";
 
 		if ($this->features['migrations']) {
 			$bootLines[] = "\t\t\$this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');";

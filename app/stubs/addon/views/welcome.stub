@@ -1,8 +1,17 @@
 <x-layouts::app>
 	<div>
-		<x-ui::heading>{{name}}</x-ui::heading>
-		<x-ui::card>
-			<p>Addon activo y conectado al Framework Core.</p>
-		</x-ui::card>
+		<x-ui::heading>{{ $addonName }}</x-ui::heading>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="p-2 border border-red-500 rounded-lg bg-red-300">
+				<p>Hola desde mi addon "{{ $addonName }}" mucho gusto {{ $userName }}. 👋</p>
+				<p>esta vista esta dentro del addon: <code>{{ '/wp-content/plugins/{{slug}}/resources/views/welcome.blade.php' }}</code></p>
+				<p>Componente livewire del framework (core):</p>
+				<livewire:counter />
+			</div>
+			<div class="p-2 border border-green-400 rounded-lg bg-green-200">
+				<p>Componente livewire de mi addon: <code>{{ $addonName }}</code></p>
+				<livewire:{{slug}}::saludo />
+			</div>
+		</div>
 	</div>
 </x-layouts::app>

@@ -1,0 +1,23 @@
+<?php
+
+namespace {{namespace}}\Http\Controllers\Home;
+
+class HomeController
+{
+    public function __construct()
+    {
+        add_shortcode('{{slug_snake}}_welcome', [$this, 'index']);
+    }
+
+    public function index(): string
+    {
+        $user = wp_get_current_user();
+        $name = $user->exists() ? $user->display_name : 'Invitado';
+
+        return view('{{slug}}::welcome', [
+            'userName'  => $name,
+            'addonName' => '{{name}}',
+            'plugin'    => '{{slug}}'
+        ])->render();
+    }
+}

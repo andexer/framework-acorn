@@ -1,0 +1,49 @@
+<?php
+
+use Livewire\Component;
+
+new class extends Component
+{
+    public string $name = '';
+
+    public function saludar(): void
+    {
+        $saludo = trim($this->name) !== '' 
+            ? "Hola {$this->name} 😊" 
+            : "Hello World";
+
+        $type = trim($this->name) !== '' ? 'success' : 'info';
+
+        $this->dispatch('notify', 
+            type: $type,
+            content: $saludo,
+            duration: 4000
+        );
+    }
+};
+?>
+
+<div class="flex flex-col gap-4 mt-4 mb-4">
+    <div class="flex items-end gap-2">
+        <x-ui.field>
+            <x-ui.label>¿A quién quieres saludar?</x-ui.label>
+            <x-ui.input 
+                wire:model="name"
+                placeholder="Ingresa un nombre..."
+                clearable
+                wire:keydown.enter="saludar"
+            />
+        </x-ui.field>
+        <x-ui.button wire:click="saludar" variant="gradient" size="lg">
+            Saludar
+        </x-ui.button>
+    </div>
+
+    <div class="p-4 bg-slate-50 border border-slate-100 rounded-lg text-lg font-medium text-slate-700">
+        @if(trim($name) !== '')
+            Hola {{ $name }} 😊
+        @else
+            Hello World
+        @endif
+    </div>
+</div>
