@@ -38,7 +38,7 @@ El framework implementa un patrón de arranque modular que permite:
 
 1. Clone el repositorio dentro de la carpeta `wp-content/plugins/` de su instalación de WordPress:
    ```bash
-   git clone https://github.com/andexer/framework.git
+   git clone https://github.com/andexer/framework-acorn.git
    ```
 
 2. Instale las dependencias de PHP:
@@ -98,4 +98,4 @@ Se utiliza `Laravel Pint` para mantener la consistencia del código. Se recomien
 
 ## Licencia
 
-Este proyecto está bajo la licencia MIT.
+Este proyecto está bajo la licencia GPLv2.
