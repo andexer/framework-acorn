@@ -1,0 +1,24 @@
+<?php
+
+namespace {{namespace}}\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AddonServiceProvider extends ServiceProvider
+{
+	public function register(): void
+	{
+	}
+
+	public function boot(): void
+	{
+		$this->loadViewsFrom(__DIR__ . '/../../resources/views', '{{slug}}');
+		$this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+
+		if ($this->app->bound('blade.compiler')) {
+			\Illuminate\Support\Facades\Blade::anonymousComponentPath(__DIR__ . '/../../resources/views/components/ui', 'ui');
+		}
+
+		app(\{{namespace}}\Http\Controllers\Home\HomeController::class);
+	}
+}

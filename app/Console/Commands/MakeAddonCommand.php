@@ -8,6 +8,36 @@ use Illuminate\Support\Str;
 
 class MakeAddonCommand extends Command
 {
+	private const STUBS_BASE = __DIR__ . '/../../stubs/addon';
+
+	private const STATIC_STUBS = [
+		'root/php/plugin.php.stub'               => '{{slug}}.php',
+		'root/json/composer.json.stub'           => 'composer.json',
+		'root/php/web.php.stub'                  => 'routes/web.php',
+		'root/php/config.php.stub'               => 'config/{{slug}}.php',
+		'views/welcome.blade.stub'               => 'resources/views/welcome.blade.php',
+		'Http/Controllers/Home/HomeController.php.stub' => 'app/Http/Controllers/Home/HomeController.php',
+		'root/meta/gitignore.txt.stub'           => '.gitignore',
+		'root/env/env.env.stub'                  => '.env.example',
+	];
+
+	private const HOOK_STUBS = [
+		'Hook/Activate.php.stub'   => 'app/Http/Controllers/Hook/Activate.php',
+		'Hook/Deactivate.php.stub' => 'app/Http/Controllers/Hook/Deactivate.php',
+	];
+
+	private const ASSET_STUBS = [
+		'css/app.css.stub' => 'resources/css/app.css',
+		'js/app.js.stub'  => 'resources/js/app.js',
+		'root/js/vite.js.stub' => 'vite.config.js',
+		'root/json/package.json.stub' => 'package.json',
+	];
+
+	private const LANG_STUBS = [
+		'lang/en.php.stub' => 'lang/en/messages.php',
+		'lang/es.php.stub' => 'lang/es/messages.php',
+	];
+
 	protected $signature = 'make:addon {name? : Nombre del plugin addon} {--namespace= : Namespace PSR-4} {--f|force : Sobreescribir si existe}';
 
 	protected $description = 'Genera un nuevo plugin addon que depende de este framework Core';
@@ -149,52 +179,30 @@ class MakeAddonCommand extends Command
 
 	private function publishStaticStubs(string $basePath, array $vars): void
 	{
-		$s = __DIR__ . '/../../stubs/addon';
-
-		$map = [
-			'plugin.stub'        => "{$vars['slug']}.php",
-			'composer.stub'      => 'composer.json',
-			'web.stub'           => 'routes/web.php',
-			'config.stub'        => "config/{$vars['slug']}.php",
-			'views/welcome.stub' => 'resources/views/welcome.blade.php',
-			'Http/Controllers/Home/HomeController.stub' => 'app/Http/Controllers/Home/HomeController.php',
-			'gitignore.stub'     => '.gitignore',
-			'env.stub'           => '.env.example',
-		];
-
-		foreach ($map as $stub => $target) {
-			$this->publishStub($s, $stub, $basePath, $target, $vars);
-		}
+		$this->publishStubMap(self::STATIC_STUBS, $basePath, $vars);
 	}
 
 	private function publishConditionalStubs(string $basePath, array $vars): void
 	{
-		$s = __DIR__ . '/../../stubs/addon';
-
 		if ($this->features['hooks']) {
-			$this->publishStub($s, 'Hook/Activate.stub', $basePath, 'app/Http/Controllers/Hook/Activate.php', $vars);
-			$this->publishStub($s, 'Hook/Deactivate.stub', $basePath, 'app/Http/Controllers/Hook/Deactivate.php', $vars);
+			$this->publishStubMap(self::HOOK_STUBS, $basePath, $vars);
 		}
 
 		if ($this->features['livewire']) {
-			$this->publishStub($s, 'views/components/⚡saludo.blade.stub', $basePath, 'resources/views/components/⚡saludo.blade.php', $vars);
+			$this->publishStub(self::STUBS_BASE, 'views/components/⚡saludo.blade.stub', $basePath, 'resources/views/components/⚡saludo.blade.php', $vars);
 		}
 
 		if ($this->features['migrations']) {
 			$target = "database/migrations/{$vars['timestamp']}_create_{$vars['slug_snake']}_tables.php";
-			$this->publishStub($s, 'migration.stub', $basePath, $target, $vars);
+			$this->publishStub(self::STUBS_BASE, 'database/migrations/create_tables.php.stub', $basePath, $target, $vars);
 		}
 
 		if ($this->features['assets']) {
-			$this->publishStub($s, 'css/app.stub', $basePath, 'resources/css/app.css', $vars);
-			$this->publishStub($s, 'js/app.stub', $basePath, 'resources/js/app.js', $vars);
-			$this->publishStub($s, 'vite.stub', $basePath, 'vite.config.js', $vars);
-			$this->publishStub($s, 'package.stub', $basePath, 'package.json', $vars);
+			$this->publishStubMap(self::ASSET_STUBS, $basePath, $vars);
 		}
 
 		if ($this->features['lang']) {
-			$this->publishStub($s, 'lang/en.stub', $basePath, 'lang/en/messages.php', $vars);
-			$this->publishStub($s, 'lang/es.stub', $basePath, 'lang/es/messages.php', $vars);
+			$this->publishStubMap(self::LANG_STUBS, $basePath, $vars);
 		}
 
 		if ($this->features['ai_skill']) {
@@ -222,7 +230,7 @@ class MakeAddonCommand extends Command
 
 	private function writeBinary(string $basePath, array $vars): void
 	{
-		$stubFile = __DIR__ . '/../../stubs/addon/bin.stub';
+		$stubFile = self::STUBS_BASE . '/root/shell/bin.sh.stub';
 		$content  = $this->replacePlaceholders(File::get($stubFile), $vars);
 		$binary   = "{$basePath}/{$vars['slug']}";
 
@@ -295,6 +303,14 @@ class MakeAddonCommand extends Command
 		File::put($targetFile, $content);
 
 		$this->line("  <fg=green>created</> {$target}");
+	}
+
+	private function publishStubMap(array $map, string $basePath, array $vars): void
+	{
+		foreach ($map as $stub => $target) {
+			$target = $this->replacePlaceholders($target, $vars);
+			$this->publishStub(self::STUBS_BASE, $stub, $basePath, $target, $vars);
+		}
 	}
 
 	private function replacePlaceholders(string $content, array $vars): string

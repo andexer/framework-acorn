@@ -53,9 +53,14 @@ class LivewireServiceProvider extends ServiceProvider
 
 	private function inject_livewire_assets(): void
 	{
+		$assetUrl = $this->asset_url();
+		if ($assetUrl === '') {
+			return;
+		}
+
 		printf(
 			'<script src="%s" data-csrf="%s" data-update-uri="%s" data-navigate-once="true"></script>',
-			esc_url($this->asset_url()),
+			esc_url($assetUrl),
 			esc_attr(session()->token()),
 			esc_url(home_url('/plugin-wire/update'))
 		);
@@ -73,13 +78,29 @@ class LivewireServiceProvider extends ServiceProvider
 			default        => 'livewire.min.js',
 		};
 
-		$url      = get_plugin_uri("public/vendor/livewire/{$file}");
-		$manifest = get_plugin_path('public/vendor/livewire/manifest.json');
+		$publicManifest = get_plugin_path('public/vendor/livewire/manifest.json');
+		$publicFile = get_plugin_path("public/vendor/livewire/{$file}");
+		$vendorManifest = get_plugin_path('vendor/livewire/livewire/dist/manifest.json');
+		$vendorFile = get_plugin_path("vendor/livewire/livewire/dist/{$file}");
 
-		if (file_exists($manifest)) {
-			$data = json_decode(file_get_contents($manifest), true);
-			if ($v = ($data['/livewire.js'] ?? null)) {
-				$url .= "?id={$v}";
+		$url = '';
+		$manifest = null;
+
+		if (file_exists($publicFile)) {
+			$url = get_plugin_uri("public/vendor/livewire/{$file}");
+			$manifest = $publicManifest;
+		} elseif (file_exists($vendorFile)) {
+			$url = get_plugin_uri("vendor/livewire/livewire/dist/{$file}");
+			$manifest = $vendorManifest;
+		} else {
+			return '';
+		}
+
+		if ($manifest && file_exists($manifest)) {
+			$data = json_decode(file_get_contents($manifest), true) ?: [];
+			$version = $data['/livewire.js'] ?? null;
+			if ($version) {
+				$url .= '?id=' . rawurlencode($version);
 			}
 		}
 

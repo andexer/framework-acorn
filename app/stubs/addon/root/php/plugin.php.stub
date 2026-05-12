@@ -32,7 +32,18 @@ if (! function_exists('is_plugin_active')) {
 }
 
 register_activation_hook(__FILE__, static function (): void {
-    if (is_plugin_active('framework/framework.php')) {
+    $coreCandidates = [
+        'framework-acorn/framework-acorn.php',
+        'framework/framework.php',
+    ];
+
+    foreach ($coreCandidates as $corePlugin) {
+        if (is_plugin_active($corePlugin)) {
+            return;
+        }
+    }
+
+    if (defined('FRAMEWORK_PLUGIN_BASENAME') && is_plugin_active(FRAMEWORK_PLUGIN_BASENAME)) {
         return;
     }
 
@@ -56,7 +67,11 @@ add_action('admin_notices', static function (): void {
     );
 });
 
-if (! is_plugin_active('framework/framework.php')) {
+if (
+    ! is_plugin_active('framework-acorn/framework-acorn.php')
+    && ! is_plugin_active('framework/framework.php')
+    && (! defined('FRAMEWORK_PLUGIN_BASENAME') || ! is_plugin_active(FRAMEWORK_PLUGIN_BASENAME))
+) {
     return;
 }
 

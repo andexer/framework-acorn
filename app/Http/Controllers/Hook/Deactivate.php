@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\File;
 
 class Deactivate
 {
+	protected string $corePlugin = 'framework/framework.php';
+
 	public function __invoke(): void
 	{
 		$this->deactivateFrameworkAddons();
@@ -26,7 +28,7 @@ class Deactivate
 		$plugins = get_plugins();
 
 		foreach ($plugins as $pluginFile => $data) {
-			if ($pluginFile === 'framework/framework.php') {
+			if ($pluginFile === $this->corePlugin) {
 				continue;
 			}
 

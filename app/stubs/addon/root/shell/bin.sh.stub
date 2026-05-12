@@ -23,7 +23,7 @@ if (!file_exists($wpLoadPath)) {
 require_once $wpLoadPath;
 
 if (!function_exists('app')) {
-    exit("Error: framework no está activo. Activa framework/framework.php primero.\n");
+    exit("Error: framework no está activo. Activa framework-acorn/framework-acorn.php primero.\n");
 }
 
 $app = app();
