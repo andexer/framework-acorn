@@ -257,7 +257,7 @@ class MakeAddonCommand extends Command
 		];
 
 		if ($this->features['livewire']) {
-			$bootLines[] = "\t\t\\Livewire\\Livewire::componentNamespace('{$ns}\\\\Livewire', '{$slug}');";
+			// Las vistas de Livewire se registran automáticamente en AddonBootstrapper
 		}
 
 		$bootLines[] = "\n\t\tapp(\\{$ns}\\Http\\Controllers\\Home\\HomeController::class);";

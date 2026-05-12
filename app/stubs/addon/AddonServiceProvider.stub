@@ -3,6 +3,7 @@
 namespace {{namespace}}\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use {{namespace}}\\Http\\Controllers\\Home\\HomeController;
 
 class AddonServiceProvider extends ServiceProvider
 {
@@ -14,5 +15,7 @@ class AddonServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', '{{slug}}');
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+
+		app(HomeController::class);
     }
 }
