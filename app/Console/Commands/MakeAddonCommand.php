@@ -177,7 +177,7 @@ class MakeAddonCommand extends Command
 		}
 
 		if ($this->features['livewire']) {
-			$this->publishStub($s, 'views/components/livewire.stub', $basePath, 'resources/views/components/example-livewire.blade.php', $vars);
+			$this->publishStub($s, 'views/components/⚡saludo.blade.stub', $basePath, 'resources/views/components/⚡saludo.blade.php', $vars);
 		}
 
 		if ($this->features['migrations']) {
