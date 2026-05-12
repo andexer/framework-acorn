@@ -6,7 +6,13 @@
  * Version:     1.0.0
  * Requires Plugins: framework
  * Framework Addon: true
- * 
+ * License:     GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ */
+
+/**
+ * El archivo AGENTS.md contiene información sobre las capacidades del agente, 
+ * las tecnologías que puede utilizar y las mejores prácticas que debe seguir.
  * --- Instrucciones de Arquitectura ---
  * Vistas: view('{{slug}}::nombre-vista')
  * Blade Components (Globales): <x-ui.nombre-componente />
@@ -41,7 +47,13 @@ add_action('admin_notices', static function (): void {
     }
 
     delete_transient($key);
-    echo '<div class="notice notice-error"><p>Este addon requiere que el plugin Framework este activo.</p></div>';
+    wp_admin_notice(
+        'Este addon requiere que el plugin Framework esté activo.',
+        [
+            'type' => 'error',
+            'dismissible' => true,
+        ]
+    );
 });
 
 if (! is_plugin_active('framework/framework.php')) {
