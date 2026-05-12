@@ -1,0 +1,37 @@
+<?php
+
+namespace {{namespace}}\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+
+class MakeControllerCommand extends Command
+{
+	protected $signature = '{{slug}}:make:controller {name : Nombre del controlador}';
+	protected $description = 'Crea un controlador en el addon';
+
+	public function handle(): int
+	{
+		$name     = $this->argument('name');
+		$filename = Str::studly($name) . '.php';
+		$path     = dirname(__DIR__, 3) . "/app/Http/Controllers/{$filename}";
+
+		if (File::exists($path)) {
+			$this->error("El controlador [{$filename}] ya existe.");
+			return self::FAILURE;
+		}
+
+		File::ensureDirectoryExists(dirname($path));
+		File::put($path, $this->template($name));
+
+		$this->info("Controlador [{$name}] creado en el addon.");
+		return self::SUCCESS;
+	}
+
+	private function template(string $name): string
+	{
+		$ns = "{{namespace}}\\Http\\Controllers";
+		return "<?php\n\nnamespace {$ns};\n\nuse Illuminate\\Http\\Request;\n\nclass " . Str::studly($name) . "\n{\n\tpublic function __invoke(Request \$request)\n\t{\n\t\t//\n\t}\n}\n";
+	}
+}

@@ -1,0 +1,47 @@
+{
+	"name": "andexer/framework",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"description": "WordPress framework for creating plugins",
+	"homepage": "https://github.com/andexer/framework",
+	"keywords": [
+		"wordpress"
+	],
+	"support": {
+		"issues": "https://github.com/andexer/framework/issues"
+	},
+	"autoload": {
+		"psr-4": {
+			"App\\": "app/",
+			"Database\\Factories\\": "database/factories/",
+			"Database\\Seeders\\": "database/seeders/"
+		},
+		"files": [
+			"app/helpers.php"
+		]
+	},
+	"require": {
+		"php": ">=8.3",
+		"blade-ui-kit/blade-heroicons": "^2.7",
+		"livewire/livewire": "^4.3",
+		"roots/acorn": "^6.0"
+	},
+	"require-dev": {
+		"laravel/pint": "^1.20"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"preferred-install": "dist",
+		"sort-packages": true,
+		"allow-plugins": {
+			"roots/acorn": true
+		}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"scripts": {
+		"post-autoload-dump": [
+			"Roots\\Acorn\\ComposerScripts::postAutoloadDump"
+		]
+	}
+}

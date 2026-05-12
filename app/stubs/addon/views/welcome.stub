@@ -1,0 +1,8 @@
+<x-layouts::app>
+	<div>
+		<x-ui::heading>{{name}}</x-ui::heading>
+		<x-ui::card>
+			<p>Addon activo y conectado al Framework Core.</p>
+		</x-ui::card>
+	</div>
+</x-layouts::app>

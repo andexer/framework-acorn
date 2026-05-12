@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Plugin Name: {{name}}
+ * Description: Addon que depende del Framework Core (plugin).
+ * Version:     1.0.0
+ * Requires Plugins: framework
+ * Framework Addon: true
+ * 
+ * --- Instrucciones de Arquitectura ---
+ * Vistas: view('{{slug}}::nombre-vista')
+ * Blade Components (Globales): <x-ui.nombre-componente />
+ * Livewire (Modulares): <livewire:{{slug}}::nombre-componente />
+ */
+
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+if (file_exists($composer = __DIR__ . '/vendor/autoload.php')) {
+    require $composer;
+}
+
+if (! function_exists('is_plugin_active')) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+
+register_activation_hook(__FILE__, static function (): void {
+    if (is_plugin_active('framework/framework.php')) {
+        return;
+    }
+
+    deactivate_plugins(plugin_basename(__FILE__));
+    set_transient('framework_addon_missing_core_' . md5(__FILE__), 1, 30);
+});
+
+add_action('admin_notices', static function (): void {
+    $key = 'framework_addon_missing_core_' . md5(__FILE__);
+    if (! get_transient($key)) {
+        return;
+    }
+
+    delete_transient($key);
+    echo '<div class="notice notice-error"><p>Este addon requiere que el plugin Framework este activo.</p></div>';
+});
+
+if (! is_plugin_active('framework/framework.php')) {
+    return;
+}
+
+add_action('plugins_loaded', function () {
+    \App\Framework\AddonBootstrapper::register(
+        \{{namespace}}\Providers\AddonServiceProvider::class
+    );
+}, 20);

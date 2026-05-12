@@ -1,0 +1,16 @@
+<?php
+
+namespace {{namespace}}\Http\Controllers\Hook;
+
+use Illuminate\Support\Facades\Artisan;
+
+class Activate
+{
+	public function __invoke(): void
+	{
+		try {
+			Artisan::call('migrate', ['--force' => true]);
+		} catch (\Exception $e) {
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+    "name": "andexer/{{slug}}",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "description": "{{name}} — Addon para el Framework Core",
+    "autoload": {
+        "psr-4": {
+            "{{namespace}}\\": "app/"
+        }
+    },
+    "require": {
+        "php": ">=8.3"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Console\RequestMakeCommand;
+use App\Console\Commands\MakeAddonCommand;
+use App\Console\Commands\AddonProxyCommand;
+//use App\Http\Controllers\WooCommerce\MyAccountController;
+
+class FrameworkServiceProvider extends ServiceProvider
+{
+	/**
+	 * Register services.
+	 */
+	public function register(): void
+	{
+		//
+	}
+	/**
+	 * Bootstrap services.
+	 */
+	public function boot(): void
+	{
+		$frameworkViewsPath = function_exists('get_framework_path')
+			? get_framework_path('resources/views')
+			: dirname(__DIR__, 2) . '/resources/views';
+
+		$frameworkUiPath = function_exists('get_framework_path')
+			? get_framework_path('resources/views/components/ui')
+			: dirname(__DIR__, 2) . '/resources/views/components/ui';
+		$frameworkLayoutsPath = function_exists('get_framework_path')
+			? get_framework_path('resources/views/layouts')
+			: dirname(__DIR__, 2) . '/resources/views/layouts';
+
+		$this->loadViewsFrom($frameworkViewsPath, 'framework');
+
+		// Registrar componentes UI del framework para que sean heredables
+		if ($this->app->bound('blade.compiler')) {
+			\Illuminate\Support\Facades\Blade::anonymousComponentPath(
+				$frameworkUiPath,
+				'ui'
+			);
+			\Illuminate\Support\Facades\Blade::anonymousComponentPath(
+				$frameworkLayoutsPath,
+				'layouts'
+			);
+		}
+
+		// Comandos de consola
+		if ($this->app->runningInConsole()) {
+			$this->commands([
+				RequestMakeCommand::class,
+				MakeAddonCommand::class,
+				AddonProxyCommand::class,
+			]);
+		}
+		add_action('wp_enqueue_scripts', function () {
+			// Validamos que el activo exista antes de intentar obtener su URI
+			try {
+				$css = plugin_asset('resources/css/app.css');
+				$js = plugin_asset('resources/js/app.js');
+
+				// Encolar CSS principal
+				wp_enqueue_style(
+					'framework-app',
+					$css->uri(),
+					[],
+					null
+				);
+				// Encolar JS principal
+				wp_enqueue_script(
+					'framework-app',
+					$js->uri(),
+					[],
+					null,
+					true
+				);
+				wp_set_script_translations('framework-app', 'framework', lang_path());
+			} catch (\Exception $e) {
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					Log::error('Framework: Error encolando activos - ' . $e->getMessage());
+				}
+			}
+		}, 100);
+
+		/*
+		add_action('woocommerce_account_dashboard', function () {
+			if (class_exists(MyAccountController::class)) {
+				echo app(MyAccountController::class)()->render();
+			}
+		});
+		*/
+	}
+}

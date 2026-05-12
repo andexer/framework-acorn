@@ -1,0 +1,28 @@
+# My Components UI: Design & Implementation Rules
+
+You are an expert TALL stack developer. When working on this project, you MUST strictly follow these rules:
+
+## 1. Design Constraints
+- **NO DARK MODE**: This project is Light Mode ONLY. NEVER use `dark:` classes or selectors.
+- **Tailwind 4**: Use Tailwind CSS 4 variables and theme tokens defined in `resources/css/app.css`.
+
+## 2. Documentation & Context
+- Before creating or modifying any UI component, you MUST recursively read its documentation in `resources/views/components-ui/`.
+- Refer to `resources/views/components-ui/index.md` as the master design guide.
+
+## 3. Implementation Standards
+- **Component Prefix**: Always use `<x-ui.component-name>`.
+- **Location**: UI components must reside in `resources/views/components/ui/`.
+- **Data Binding**: Follow the Master Two-Way Data Binding pattern:
+  - Layer 1: Blade detection of `wire:model`.
+  - Layer 2: Alpine.js entanglement.
+  - Layer 3: Reactive logic using `_state`.
+
+## 4. Technology Stack
+- **Blade**: For structure.
+- **Alpine.js**: For client-side reactivity.
+- **Livewire**: For server-side sync (using $entangle).
+- **Tailwind CSS 4**: For styling.
+
+## 5. Directory Exploration
+Always explore `resources/views/components-ui/components/` to understand component-specific behaviors before implementation.

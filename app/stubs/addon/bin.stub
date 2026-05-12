@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+
+if (php_sapi_name() !== 'cli' && php_sapi_name() !== 'phpdbg') {
+    http_response_code(403);
+    exit("Forbidden: This script can only be run from the command line.\n");
+}
+
+if (!isset($_SERVER['HTTP_HOST'])) {
+    $_SERVER['HTTP_HOST'] = 'localhost';
+}
+
+$addonAutoloader = __DIR__ . '/vendor/autoload.php';
+if (file_exists($addonAutoloader)) {
+    require_once $addonAutoloader;
+}
+
+$wpLoadPath = dirname(__DIR__, 3) . '/wp-load.php';
+if (!file_exists($wpLoadPath)) {
+    exit("Error: No se encontró wp-load.php en {$wpLoadPath}.\n");
+}
+
+require_once $wpLoadPath;
+
+if (!function_exists('app')) {
+    exit("Error: framework no está activo. Activa framework/framework.php primero.\n");
+}
+
+$app = app();
+
+if (method_exists($app, 'setBasePath')) {
+    $app->setBasePath(__DIR__);
+}
+
+$app->usePaths([
+    'app'       => __DIR__ . '/app',
+    'database'  => __DIR__ . '/database',
+    'resources' => __DIR__ . '/resources',
+    'config'    => __DIR__ . '/config',
+    'lang'      => __DIR__ . '/lang',
+]);
+
+$app->useNamespace('{{namespace}}\\');
+
+$status = $app->make(\Illuminate\Contracts\Console\Kernel::class)->handle(
+    $input = new \Symfony\Component\Console\Input\ArgvInput(),
+    new \Symfony\Component\Console\Output\ConsoleOutput()
+);
+
+exit($status);

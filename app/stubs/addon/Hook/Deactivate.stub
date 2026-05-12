@@ -1,0 +1,26 @@
+<?php
+
+namespace {{namespace}}\Http\Controllers\Hook;
+
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+
+class Deactivate
+{
+	public function __invoke(): void
+	{
+		Artisan::call('cache:clear');
+		Artisan::call('view:clear');
+
+		$paths = [
+			storage_path('framework/cache'),
+			storage_path('framework/views'),
+		];
+
+		foreach ($paths as $path) {
+			if (File::isDirectory($path)) {
+				File::cleanDirectory($path);
+			}
+		}
+	}
+}

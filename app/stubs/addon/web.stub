@@ -1,0 +1,10 @@
+<?php
+/*
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('wordpress')->group(function () {
+    Route::get('/{{slug}}', function () {
+        return view('{{slug}}::welcome');
+    });
+});
+*/

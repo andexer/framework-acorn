@@ -1,0 +1,51 @@
+<?php
+
+namespace {{namespace}}\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
+
+class ArtisanScopedCommand extends Command
+{
+	protected $signature = '{{slug}}:artisan {cmd : Comando de artisan a ejecutar (ej. make:request)} {--args= : Argumentos adicionales}';
+	protected $description = 'Ejecuta cualquier comando de Acorn/Artisan dentro del scope de este addon';
+
+	public function handle(): int
+	{
+		$cmd  = $this->argument('cmd');
+		$args = $this->option('args') ? explode(' ', $this->option('args')) : [];
+		
+		$this->info("Ejecutando [{$cmd}] en el scope de {{name}}...");
+
+		$app = app();
+		$oldPaths = [
+			'app'       => app_path(),
+			'database'  => database_path(),
+			'resources' => resource_path(),
+			'config'    => config_path(),
+			'lang'      => lang_path(),
+		];
+		$oldNamespace = method_exists($app, 'getNamespace') ? $app->getNamespace() : 'App\\';
+		
+		$app->usePaths([
+			'app'       => dirname(__DIR__, 3) . '/app',
+			'database'  => dirname(__DIR__, 3) . '/database',
+			'resources' => dirname(__DIR__, 3) . '/resources',
+			'config'    => dirname(__DIR__, 3) . '/config',
+			'lang'      => dirname(__DIR__, 3) . '/lang',
+		]);
+
+		if (method_exists($app, 'useNamespace')) {
+			$app->useNamespace('{{namespace}}\\');
+		}
+
+		$exitCode = Artisan::call($cmd, $args, $this->output);
+
+		$app->usePaths($oldPaths);
+		if (method_exists($app, 'useNamespace')) {
+			$app->useNamespace($oldNamespace);
+		}
+
+		return $exitCode;
+	}
+}
