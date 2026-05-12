@@ -6,7 +6,9 @@
 		<livewire:form-validate />
 		<livewire:modal-user />
 
-		{!! do_shortcode('[framework_map]') !!}
+		{{--!! do_shortcode('[framework_map]') !!} --}}
+
+		<livewire:mapa-direcciones />
 	</div>
 </div>
 </x-layouts::app>

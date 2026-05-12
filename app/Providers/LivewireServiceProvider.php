@@ -40,6 +40,8 @@ class LivewireServiceProvider extends ServiceProvider
 		add_action('parse_request', $this->handle_livewire_requests(...), 1);
 		add_action('wp_head', fn() => print(FrontendAssets::styles()));
 		add_action('wp_footer', $this->inject_livewire_assets(...));
+		add_action('admin_head', fn() => print(FrontendAssets::styles()));
+		add_action('admin_footer', $this->inject_livewire_assets(...));
 	}
 
 	private function handle_livewire_requests(): void

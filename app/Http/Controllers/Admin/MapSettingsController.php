@@ -4,26 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\MapController;
 
-/**
- * MapSettingsController
- *
- * Registra la página de ajustes del mapa en el admin de WordPress.
- * Usa WordPress Settings API para guardar el país en wp_options.
- *
- * Ruta admin: Ajustes → Configuración del Mapa
- * Opción:     framework_map_country  (código ISO 3166-1 alpha-2)
- */
-class MapSettingsController
+class MapSettingsController extends AdminPanelController
 {
-	private const PAGE_SLUG    = 'framework-map-settings';
-	private const SECTION_ID   = 'framework_map_section';
-	private const SETTINGS_GROUP = 'framework_map_group';
+	protected string $pageSlug = 'framework-map-settings';
+	protected string $sectionId = 'framework_map_section';
+	protected string $settingsGroup = 'framework_map_group';
 
-	/** Lista de países disponibles (code => nombre en español) */
-	private const COUNTRIES = [
-		// Venezuela primero — país por defecto
+	protected array $countries = [
 		'VE' => '🇻🇪 Venezuela (por defecto)',
-		// Latinoamérica
 		'AR' => '🇦🇷 Argentina',
 		'BO' => '🇧🇴 Bolivia',
 		'BR' => '🇧🇷 Brasil',
@@ -44,7 +32,6 @@ class MapSettingsController
 		'PE' => '🇵🇪 Perú',
 		'PR' => '🇵🇷 Puerto Rico',
 		'UY' => '🇺🇾 Uruguay',
-		// Resto del mundo
 		'US' => '🇺🇸 Estados Unidos',
 		'CA' => '🇨🇦 Canadá',
 		'ES' => '🇪🇸 España',
@@ -59,53 +46,52 @@ class MapSettingsController
 		'AU' => '🇦🇺 Australia',
 	];
 
-	/** Llamado desde el ServiceProvider */
 	public function register(): void
 	{
-		add_action('admin_menu',    [$this, 'addMenuPage']);
-		add_action('admin_init',    [$this, 'registerSettings']);
+		add_action('admin_menu', [$this, 'addMenuPage']);
+		add_action('admin_init', [$this, 'registerSettings']);
 	}
 
 	public function addMenuPage(): void
 	{
-		add_options_page(
+		$this->registerSubmenuPage(
 			__('Configuración del Mapa', 'framework'),
 			__('Mapa Interactivo', 'framework'),
-			'manage_options',
-			self::PAGE_SLUG,
+			$this->pageSlug,
 			[$this, 'renderPage'],
+			20,
 		);
 	}
 
 	public function registerSettings(): void
 	{
 		register_setting(
-			self::SETTINGS_GROUP,
+			$this->settingsGroup,
 			MapController::OPTION_KEY,
 			[
-				'type'              => 'string',
+				'type' => 'string',
 				'sanitize_callback' => [$this, 'sanitizeCountry'],
-				'default'           => MapController::DEFAULT_CODE,
+				'default' => MapController::DEFAULT_CODE,
 			],
 		);
 
 		add_settings_section(
-			self::SECTION_ID,
+			$this->sectionId,
 			__('País del Mapa', 'framework'),
 			function (): void {
 				echo '<p class="description">'
 					. esc_html__('Selecciona el país que se mostrará por defecto en el mapa del shortcode [framework_map].', 'framework')
 					. '</p>';
 			},
-			self::PAGE_SLUG,
+			$this->pageSlug,
 		);
 
 		add_settings_field(
 			'framework_map_country_field',
 			__('País activo', 'framework'),
 			[$this, 'renderField'],
-			self::PAGE_SLUG,
-			self::SECTION_ID,
+			$this->pageSlug,
+			$this->sectionId,
 		);
 	}
 
@@ -113,7 +99,7 @@ class MapSettingsController
 	{
 		$current = (string) get_option(MapController::OPTION_KEY, MapController::DEFAULT_CODE);
 		echo '<select id="framework_map_country_field" name="' . esc_attr(MapController::OPTION_KEY) . '" class="regular-text">';
-		foreach (self::COUNTRIES as $code => $label) {
+		foreach ($this->countries as $code => $label) {
 			printf(
 				'<option value="%s"%s>%s</option>',
 				esc_attr($code),
@@ -127,11 +113,10 @@ class MapSettingsController
 
 	public function renderPage(): void
 	{
-		if (!current_user_can('manage_options')) {
+		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('No tienes permisos para acceder a esta página.', 'framework'));
 		}
 
-		// Mostrar mensaje de éxito tras guardar
 		if (isset($_GET['settings-updated'])) {
 			add_settings_error(
 				'framework_map_messages',
@@ -143,21 +128,20 @@ class MapSettingsController
 
 		settings_errors('framework_map_messages');
 
-		$current     = (string) get_option(MapController::OPTION_KEY, MapController::DEFAULT_CODE);
-		$countryName = self::COUNTRIES[$current] ?? $current;
+		$current = (string) get_option(MapController::OPTION_KEY, MapController::DEFAULT_CODE);
+		$countryName = $this->countries[$current] ?? $current;
 
-		// Renderizar vista Blade
 		echo app('view')->make('framework::admin.map-settings', [
-			'pageSlug'       => self::PAGE_SLUG,
-			'settingsGroup'  => self::SETTINGS_GROUP,
-			'currentCode'    => $current,
-			'currentName'    => $countryName,
+			'pageSlug' => $this->pageSlug,
+			'settingsGroup' => $this->settingsGroup,
+			'currentCode' => $current,
+			'currentName' => $countryName,
 		])->render();
 	}
 
 	public function sanitizeCountry(mixed $value): string
 	{
 		$code = strtoupper(sanitize_text_field((string) $value));
-		return array_key_exists($code, self::COUNTRIES) ? $code : MapController::DEFAULT_CODE;
+		return array_key_exists($code, $this->countries) ? $code : MapController::DEFAULT_CODE;
 	}
 }

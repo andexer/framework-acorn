@@ -1,137 +1,76 @@
-{{--
-    Admin: Configuración del Mapa Interactivo
-    Vista renderizada por MapSettingsController::renderPage()
-
-    Variables disponibles:
-        $pageSlug      — slug de la página de opciones
-        $settingsGroup — grupo de settings para settings_fields()
-        $currentCode   — código ISO del país activo (ej: "VE")
-        $currentName   — nombre del país activo (ej: "🇻🇪 Venezuela (por defecto)")
---}}
 <div class="wrap" id="framework-map-settings-page">
+	<div class="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
+		<x-ui.card class="!max-w-none border-orange-200/70 bg-gradient-to-br from-orange-50 to-white">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<x-ui.heading level="h2" size="lg" class="text-orange-900">
+						{{ __('Mapa Interactivo', 'framework') }}
+					</x-ui.heading>
+					<x-ui.description class="mt-1 text-orange-700/90">
+						{{ __('Configura el país por defecto para el shortcode [framework_map].', 'framework') }}
+					</x-ui.description>
+				</div>
+				<x-ui.badge variant="outline" color="orange" pill>
+					{{ __('Activo', 'framework') }}
+				</x-ui.badge>
+			</div>
 
-    {{-- Cabecera ──────────────────────────────────────────────────────── --}}
-    <div style="
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 24px;
-        padding: 20px 24px;
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        border-radius: 12px;
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(99,102,241,.35);
-    ">
-        <span style="font-size: 2rem; line-height:1;">🗺️</span>
-        <div>
-            <h1 style="margin:0; font-size:1.4rem; font-weight:700; color:#fff;">
-                {{ __('Mapa Interactivo', 'framework') }}
-            </h1>
-            <p style="margin:4px 0 0; opacity:.85; font-size:.9rem;">
-                {{ __('Configura el país por defecto del shortcode', 'framework') }}
-                <code style="background:rgba(255,255,255,.2); padding:2px 6px; border-radius:4px; font-size:.85rem;">[framework_map]</code>
-            </p>
-        </div>
-    </div>
+			<div class="mt-5 rounded-xl border border-orange-200 bg-orange-50/60 p-4">
+				<x-ui.text class="text-sm text-orange-800">
+					<strong>{{ __('País actual:', 'framework') }}</strong>
+					{{ $currentName }}
+					(<span class="font-mono">{{ $currentCode }}</span>)
+				</x-ui.text>
+			</div>
 
-    {{-- País activo (badge) ───────────────────────────────────────────── --}}
-    <div style="
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: .95rem;
-    ">
-        <span style="color: #16a34a; font-weight:600;">✓ País activo:</span>
-        <strong>{{ $currentName }}</strong>
-        <code style="
-            background: #dcfce7;
-            color: #166534;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: .8rem;
-            font-family: monospace;
-        ">{{ $currentCode }}</code>
-    </div>
+			<form method="POST" action="options.php" id="framework-map-settings-form" class="mt-5 space-y-4">
+				@php settings_fields($settingsGroup) @endphp
+				@php do_settings_sections($pageSlug) @endphp
 
-    {{-- Formulario de WordPress Settings API ─────────────────────────── --}}
-    <div style="
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 24px;
-        max-width: 680px;
-        box-shadow: 0 1px 4px rgba(0,0,0,.06);
-    ">
-        <form method="POST" action="options.php" id="framework-map-settings-form">
-            @php settings_fields($settingsGroup) @endphp
-            @php do_settings_sections($pageSlug) @endphp
+				<div class="flex items-center gap-3 pt-2">
+					<x-ui.button type="submit" color="orange" variant="gradient" icon="check">
+						{{ __('Guardar configuración', 'framework') }}
+					</x-ui.button>
+					<x-ui.link href="{{ get_home_url() }}" target="_blank" class="text-orange-700 hover:text-orange-800">
+						{{ __('Ver sitio', 'framework') }}
+					</x-ui.link>
+				</div>
+			</form>
+		</x-ui.card>
 
-            <hr style="border:none; border-top:1px solid #f3f4f6; margin: 20px 0;">
+		<x-ui.card class="!max-w-none border-orange-200/70 bg-white">
+			<div class="flex items-center gap-2">
+				<x-ui.icon name="information-circle" class="size-5 text-orange-600" />
+				<x-ui.heading level="h3" size="md" class="text-orange-900">
+					{{ __('Uso del shortcode', 'framework') }}
+				</x-ui.heading>
+			</div>
 
-            <div style="display:flex; align-items:center; gap:12px;">
-                @php submit_button(__('Guardar configuración', 'framework'), 'primary', 'submit', false) @endphp
-                <a
-                    href="{{ get_home_url() }}"
-                    target="_blank"
-                    style="color:#6366f1; text-decoration:none; font-size:.9rem;"
-                >
-                    {{ __('Ver en el sitio →', 'framework') }}
-                </a>
-            </div>
-        </form>
-    </div>
+			<div class="mt-4 space-y-3">
+				<div class="rounded-lg border border-orange-100 bg-orange-50/40 p-3">
+					<x-ui.text class="text-sm text-orange-900"><strong>{{ __('Por defecto', 'framework') }}</strong></x-ui.text>
+					<code class="mt-1 inline-block rounded bg-orange-100 px-2 py-1 text-xs text-orange-900">[framework_map]</code>
+				</div>
 
-    {{-- Instrucciones de uso ──────────────────────────────────────────── --}}
-    <div style="
-        margin-top: 24px;
-        max-width: 680px;
-        background: #fafaff;
-        border: 1px solid #e0e7ff;
-        border-radius: 12px;
-        padding: 20px 24px;
-    ">
-        <h3 style="margin-top:0; color:#4f46e5; font-size:1rem;">
-            📋 {{ __('Cómo usar el shortcode', 'framework') }}
-        </h3>
-        <table style="width:100%; border-collapse:collapse; font-size:.9rem;">
-            <tr>
-                <td style="padding:6px 0; vertical-align:top; width:50%; color:#374151;">
-                    <strong>{{ __('País por defecto (desde ajustes)', 'framework') }}</strong>
-                </td>
-                <td style="padding:6px 0; vertical-align:top;">
-                    <code style="background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:4px;">[framework_map]</code>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:6px 0; vertical-align:top; color:#374151;">
-                    <strong>{{ __('País específico', 'framework') }}</strong>
-                </td>
-                <td style="padding:6px 0; vertical-align:top;">
-                    <code style="background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:4px;">[framework_map country="AR"]</code>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:6px 0; vertical-align:top; color:#374151;">
-                    <strong>{{ __('Altura personalizada', 'framework') }}</strong>
-                </td>
-                <td style="padding:6px 0; vertical-align:top;">
-                    <code style="background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:4px;">[framework_map height="600"]</code>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:6px 0; vertical-align:top; color:#374151;">
-                    <strong>{{ __('Todo combinado', 'framework') }}</strong>
-                </td>
-                <td style="padding:6px 0; vertical-align:top;">
-                    <code style="background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:4px;">[framework_map country="MX" height="400"]</code>
-                </td>
-            </tr>
-        </table>
-    </div>
+				<div class="rounded-lg border border-orange-100 bg-orange-50/40 p-3">
+					<x-ui.text class="text-sm text-orange-900"><strong>{{ __('País específico', 'framework') }}</strong></x-ui.text>
+					<code class="mt-1 inline-block rounded bg-orange-100 px-2 py-1 text-xs text-orange-900">[framework_map country="AR"]</code>
+				</div>
 
+				<div class="rounded-lg border border-orange-100 bg-orange-50/40 p-3">
+					<x-ui.text class="text-sm text-orange-900"><strong>{{ __('Altura personalizada', 'framework') }}</strong></x-ui.text>
+					<code class="mt-1 inline-block rounded bg-orange-100 px-2 py-1 text-xs text-orange-900">[framework_map height="600"]</code>
+				</div>
+
+				<div class="rounded-lg border border-orange-100 bg-orange-50/40 p-3">
+					<x-ui.text class="text-sm text-orange-900"><strong>{{ __('Combinado', 'framework') }}</strong></x-ui.text>
+					<code class="mt-1 inline-block rounded bg-orange-100 px-2 py-1 text-xs text-orange-900">[framework_map country="MX" height="400"]</code>
+				</div>
+			</div>
+		</x-ui.card>
+
+		<x-ui.card class="!max-w-none border-orange-200/70 bg-white">
+			{!! do_shortcode('[framework_map]') !!}
+		</x-ui.card>
+	</div>
 </div>

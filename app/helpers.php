@@ -48,6 +48,43 @@ if (! function_exists('get_plugin_manifest')) {
 	}
 }
 
+if (! function_exists('get_manifest_entry_css_files')) {
+	function get_manifest_entry_css_files(array $manifest, string $entry): array
+	{
+		if (! isset($manifest[$entry])) {
+			return [];
+		}
+
+		$pending = [$entry];
+		$visited = [];
+		$css = [];
+
+		while ($pending !== []) {
+			$key = array_pop($pending);
+			if (! is_string($key) || isset($visited[$key]) || ! isset($manifest[$key])) {
+				continue;
+			}
+
+			$visited[$key] = true;
+			$chunk = $manifest[$key];
+
+			foreach (($chunk['css'] ?? []) as $cssFile) {
+				if (is_string($cssFile) && $cssFile !== '') {
+					$css[$cssFile] = true;
+				}
+			}
+
+			foreach (($chunk['imports'] ?? []) as $import) {
+				if (is_string($import) && $import !== '') {
+					$pending[] = $import;
+				}
+			}
+		}
+
+		return array_keys($css);
+	}
+}
+
 if (! function_exists('get_plugin_path')) {
 	/**
 	 * Obtiene la ruta física del framework.

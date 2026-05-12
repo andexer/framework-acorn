@@ -1,16 +1,10 @@
-/**
- * map-app.tsx — Entry point de la isla React del mapa.
- *
- * Se monta sobre cualquier <div id="map-root"> que encuentre en el DOM.
- * Los datos del país se leen desde data-* attributes inyectados por PHP/Blade.
- */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import 'leaflet/dist/leaflet.css';
-import { MapComponent } from './components/map/MapComponent';
-import { getCountry, DEFAULT_COUNTRY } from './components/map/countries';
+import { MapComponent } from './map/MapComponent';
+import { getCountry, DEFAULT_COUNTRY } from './map/countries';
 
-function mount() {
+export function mountFrameworkMapIslands() {
 	const containers = document.querySelectorAll<HTMLDivElement>('[id^="map-root"]');
 
 	containers.forEach((container) => {
@@ -27,9 +21,8 @@ function mount() {
 	});
 }
 
-// Espera a que el DOM esté listo (el script puede cargarse con defer)
 if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', mount);
+	document.addEventListener('DOMContentLoaded', mountFrameworkMapIslands);
 } else {
-	mount();
+	mountFrameworkMapIslands();
 }

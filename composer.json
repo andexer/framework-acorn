@@ -1,14 +1,14 @@
 {
-	"name": "andexer/framework",
+	"name": "andexer/framework-acorn",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"description": "WordPress framework for creating plugins",
-	"homepage": "https://github.com/andexer/framework",
+	"homepage": "https://github.com/andexer/framework-acorn",
 	"keywords": [
 		"wordpress"
 	],
 	"support": {
-		"issues": "https://github.com/andexer/framework/issues"
+		"issues": "https://github.com/andexer/framework-acorn/issues"
 	},
 	"autoload": {
 		"psr-4": {

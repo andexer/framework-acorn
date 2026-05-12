@@ -9,7 +9,7 @@ if (!process.env.APP_URL) {
 }
 
 export default defineConfig({
-	base: '/wp-content/plugins/framework/public/build/',
+	base: '/wp-content/plugins/framework-acorn/public/build/',
 	plugins: [
 		react(),
 		tailwindcss(),
@@ -17,7 +17,8 @@ export default defineConfig({
 			input: [
 				'resources/css/app.css',
 				'resources/js/app.js',
-				'resources/js/map-app.tsx',
+				'resources/js/components/react/map.bootstrap.tsx',
+				'resources/js/components/react/map-direcciones.bootstrap.tsx',
 			],
 			refresh: true,
 		}),

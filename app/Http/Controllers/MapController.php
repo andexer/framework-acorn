@@ -8,19 +8,22 @@ use Illuminate\Support\Facades\Log;
  * MapController
  *
  * - Registra el shortcode [framework_map]
- * - Encola map-app.tsx (compilado) solo cuando el shortcode está activo en la página
+ * - Encola map.bootstrap.tsx (compilado) solo cuando el shortcode está activo en la página
  * - Lee el país desde wp_options → framework_map_country (default: VE)
  */
 class MapController
 {
-	public const OPTION_KEY  = 'framework_map_country';
+	public const OPTION_KEY = 'framework_map_country';
 	public const DEFAULT_CODE = 'VE';
-	public const SHORTCODE    = 'framework_map';
+	public const SHORTCODE = 'framework_map';
+	public const REST_NAMESPACE = 'framework/v1';
+	public const REST_REVERSE_ROUTE = '/reverse-geocode';
 
 	/** Llamado desde el ServiceProvider. */
 	public function register(): void
 	{
 		add_shortcode(self::SHORTCODE, [$this, 'render']);
+		add_action('rest_api_init', [$this, 'registerRestRoutes']);
 	}
 
 	/**
@@ -45,10 +48,8 @@ class MapController
 			: strtoupper((string) get_option(self::OPTION_KEY, self::DEFAULT_CODE));
 
 		$height = max(200, (int) $atts['height']);
-
 		// Encolar los assets del mapa solo cuando el shortcode está presente
 		$this->enqueueAssets();
-
 		// El id es único por instancia en caso de múltiples mapas en la misma página
 		$id = 'map-root-' . esc_attr($code) . '-' . wp_unique_id();
 
@@ -69,7 +70,7 @@ class MapController
 
 		try {
 			$manifest = get_plugin_manifest();
-			$entry    = 'resources/js/map-app.tsx';
+			$entry    = 'resources/js/components/react/map.bootstrap.tsx';
 
 			if (! isset($manifest[$entry])) {
 				Log::error("Framework Map: Entry point [{$entry}] not found in manifest.");
@@ -78,19 +79,15 @@ class MapController
 
 			$jsFile = $manifest[$entry]['file'];
 			$baseUrl = get_plugin_uri('public/build/');
-
-			// Encolar CSS asociado si existe
-			if (!empty($manifest[$entry]['css'])) {
-				foreach ($manifest[$entry]['css'] as $cssFile) {
-					wp_enqueue_style(
-						'framework-map-app-' . md5($cssFile),
-						$baseUrl . $cssFile,
-						[],
-						null
-					);
-				}
+			$cssFiles = get_manifest_entry_css_files($manifest, $entry);
+			foreach ($cssFiles as $cssFile) {
+				wp_enqueue_style(
+					'framework-map-app-' . md5($cssFile),
+					$baseUrl . $cssFile,
+					[],
+					null
+				);
 			}
-
 			// Encolar JS
 			wp_enqueue_script(
 				'framework-map-app',
@@ -104,5 +101,118 @@ class MapController
 				Log::error('Framework Map: Error encolando assets - ' . $e->getMessage());
 			}
 		}
+	}
+
+	public function registerRestRoutes(): void
+	{
+		register_rest_route(self::REST_NAMESPACE, self::REST_REVERSE_ROUTE, [
+			'methods' => 'GET',
+			'callback' => [$this, 'reverseGeocode'],
+			'permission_callback' => '__return_true',
+		]);
+	}
+
+	public function reverseGeocode(\WP_REST_Request $request): \WP_REST_Response
+	{
+		$lat = (float) $request->get_param('lat');
+		$lng = (float) $request->get_param('lng');
+
+		if (! $this->validCoordinates($lat, $lng)) {
+			return new \WP_REST_Response([
+				'message' => 'Invalid coordinates.',
+			], 422);
+		}
+
+		$cacheKey = 'framework_rg_' . md5(number_format($lat, 4, '.', '') . '|' . number_format($lng, 4, '.', ''));
+		$cached = get_transient($cacheKey);
+		if (is_array($cached)) {
+			return new \WP_REST_Response($cached, 200);
+		}
+
+		$url = add_query_arg([
+			'format' => 'jsonv2',
+			'addressdetails' => 1,
+			'lat' => number_format($lat, 6, '.', ''),
+			'lon' => number_format($lng, 6, '.', ''),
+			'accept-language' => 'es',
+		], 'https://nominatim.openstreetmap.org/reverse');
+
+		$response = wp_remote_get($url, [
+			'timeout' => 10,
+			'user-agent' => 'framework-acorn/1.0 (' . home_url('/') . ')',
+			'headers' => [
+				'Accept' => 'application/json',
+			],
+		]);
+
+		if (is_wp_error($response)) {
+			return new \WP_REST_Response([
+				'message' => $response->get_error_message(),
+			], 502);
+		}
+
+		$code = (int) wp_remote_retrieve_response_code($response);
+		if ($code < 200 || $code >= 300) {
+			return new \WP_REST_Response([
+				'message' => 'Reverse geocode request failed.',
+			], 502);
+		}
+
+		$body = json_decode((string) wp_remote_retrieve_body($response), true);
+		$payload = $this->normalizeReversePayload($body, $lat, $lng);
+
+		set_transient($cacheKey, $payload, 5 * MINUTE_IN_SECONDS);
+
+		return new \WP_REST_Response($payload, 200);
+	}
+
+	public static function insideVenezuelaBounds(float $lat, float $lng): bool
+	{
+		return (
+			$lat >= 0.4 &&
+			$lat <= 12.4 &&
+			$lng >= -73.6 &&
+			$lng <= -59.6
+		);
+	}
+
+	private function validCoordinates(float $lat, float $lng): bool
+	{
+		return is_finite($lat) && is_finite($lng) && $lat >= -90 && $lat <= 90 && $lng >= -180 && $lng <= 180;
+	}
+
+	private function normalizeReversePayload(array $body, float $lat, float $lng): array
+	{
+		$address = is_array($body['address'] ?? null) ? $body['address'] : [];
+
+		$estado = $this->addressValue($address, ['state']);
+		$ciudad = $this->addressValue($address, ['city', 'town', 'village', 'hamlet']);
+		$municipio = $this->addressValue($address, ['municipality', 'county']);
+		$parroquia = $this->addressValue($address, ['suburb', 'city_district', 'quarter', 'neighbourhood']);
+		$codigoPostal = $this->addressValue($address, ['postcode']);
+
+		return [
+			'estado' => $estado,
+			'ciudad' => $ciudad,
+			'municipio' => $municipio,
+			'parroquia' => $parroquia,
+			'codigo_postal' => $codigoPostal,
+			'latitud' => round($lat, 6),
+			'longitud' => round($lng, 6),
+			'direccion_completa' => (string) ($body['display_name'] ?? ''),
+			'fuera_de_venezuela' => ! self::insideVenezuelaBounds($lat, $lng),
+		];
+	}
+
+	private function addressValue(array $address, array $keys): string
+	{
+		foreach ($keys as $key) {
+			$value = trim((string) ($address[$key] ?? ''));
+			if ($value !== '') {
+				return $value;
+			}
+		}
+
+		return '';
 	}
 }

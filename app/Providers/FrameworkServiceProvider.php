@@ -8,6 +8,7 @@ use Illuminate\Foundation\Console\RequestMakeCommand;
 use App\Console\Commands\MakeAddonCommand;
 use App\Console\Commands\AddonProxyCommand;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\Admin\AdminPanelController;
 use App\Http\Controllers\Admin\MapSettingsController;
 use App\Http\Controllers\WooCommerce\MyAccountController;
 
@@ -49,7 +50,6 @@ class FrameworkServiceProvider extends ServiceProvider
 				'layouts'
 			);
 		}
-
 		// Comandos de consola
 		if ($this->app->runningInConsole()) {
 			$this->commands([
@@ -58,38 +58,17 @@ class FrameworkServiceProvider extends ServiceProvider
 				AddonProxyCommand::class,
 			]);
 		}
-		add_action('wp_enqueue_scripts', function () {
-			// Validamos que el activo exista antes de intentar obtener su URI
-			try {
-				$css = plugin_asset('resources/css/app.css');
-				$js = plugin_asset('resources/js/app.js');
-
-				// Encolar CSS principal
-				wp_enqueue_style(
-					'framework-app',
-					$css->uri(),
-					[],
-					null
-				);
-				// Encolar JS principal
-				wp_enqueue_script(
-					'framework-app',
-					$js->uri(),
-					[],
-					null,
-					true
-				);
-				wp_set_script_translations('framework-app', 'framework', lang_path());
-			} catch (\Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					Log::error('Framework: Error encolando activos - ' . $e->getMessage());
-				}
+		add_action('wp_enqueue_scripts', fn() => $this->enqueueFrameworkAssets(), 100);
+		add_action('admin_enqueue_scripts', function (): void {
+			$page = sanitize_key((string) ($_GET['page'] ?? ''));
+			if ($page === '' || ! str_starts_with($page, 'framework-')) {
+				return;
 			}
+			$this->enqueueFrameworkAssets();
 		}, 100);
-
 		// Asegurar que los scripts de Vite se carguen como módulos
 		add_filter('script_loader_tag', function ($tag, $handle, $src) {
-			if (in_array($handle, ['framework-app', 'framework-map-app'], true)) {
+			if (in_array($handle, ['framework-app', 'framework-map-app', 'framework-mapa-direcciones-app'], true)) {
 				return '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
 			}
 			return $tag;
@@ -102,7 +81,34 @@ class FrameworkServiceProvider extends ServiceProvider
 		// Mapa interactivo — shortcode [framework_map]
 		app(MapController::class)->register();
 
-		// Panel de administración → Ajustes → Mapa Interactivo
+		app(AdminPanelController::class)->register();
 		app(MapSettingsController::class)->register();
+	}
+
+	private function enqueueFrameworkAssets(): void
+	{
+		try {
+			$css = plugin_asset('resources/css/app.css');
+			$js = plugin_asset('resources/js/app.js');
+
+			wp_enqueue_style(
+				'framework-app',
+				$css->uri(),
+				[],
+				null
+			);
+			wp_enqueue_script(
+				'framework-app',
+				$js->uri(),
+				[],
+				null,
+				true
+			);
+			wp_set_script_translations('framework-app', 'framework', lang_path());
+		} catch (\Exception $e) {
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				Log::error('Framework: Error encolando activos - ' . $e->getMessage());
+			}
+		}
 	}
 }
