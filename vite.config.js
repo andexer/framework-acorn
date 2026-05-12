@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin'
+import path from 'path'
 
 if (!process.env.APP_URL) {
 	process.env.APP_URL = 'https://wordpress.ddev.site';
@@ -9,19 +11,22 @@ if (!process.env.APP_URL) {
 export default defineConfig({
 	base: '/wp-content/plugins/framework/public/build/',
 	plugins: [
+		react(),
 		tailwindcss(),
 		laravel({
 			input: [
 				'resources/css/app.css',
 				'resources/js/app.js',
+				'resources/js/map-app.tsx',
 			],
 			refresh: true,
 		}),
 	],
 	resolve: {
 		alias: {
-			'@scripts': '/resources/js',
-			'@styles': '/resources/css',
+			'@': path.resolve(__dirname, 'resources/js'),
+			'@scripts': path.resolve(__dirname, 'resources/js'),
+			'@styles': path.resolve(__dirname, 'resources/css'),
 		},
 	},
 })

@@ -5,6 +5,8 @@
 		<livewire:counter />
 		<livewire:form-validate />
 		<livewire:modal-user />
+
+		{!! do_shortcode('[framework_map]') !!}
 	</div>
 </div>
 </x-layouts::app>

@@ -31,6 +31,23 @@ if (! function_exists('plugin_asset')) {
 	}
 }
 
+if (! function_exists('get_plugin_manifest')) {
+	/**
+	 * Obtiene el contenido del manifiesto de activos.
+	 *
+	 * @return array
+	 */
+	function get_plugin_manifest(): array
+	{
+		static $manifest = null;
+		if ($manifest === null) {
+			$path = get_plugin_path('public/build/manifest.json');
+			$manifest = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+		}
+		return $manifest;
+	}
+}
+
 if (! function_exists('get_plugin_path')) {
 	/**
 	 * Obtiene la ruta física del framework.

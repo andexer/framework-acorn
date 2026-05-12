@@ -7,7 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Console\RequestMakeCommand;
 use App\Console\Commands\MakeAddonCommand;
 use App\Console\Commands\AddonProxyCommand;
-//use App\Http\Controllers\WooCommerce\MyAccountController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\Admin\MapSettingsController;
+use App\Http\Controllers\WooCommerce\MyAccountController;
 
 class FrameworkServiceProvider extends ServiceProvider
 {
@@ -85,12 +87,22 @@ class FrameworkServiceProvider extends ServiceProvider
 			}
 		}, 100);
 
-		/*
-		add_action('woocommerce_account_dashboard', function () {
-			if (class_exists(MyAccountController::class)) {
-				echo app(MyAccountController::class)()->render();
+		// Asegurar que los scripts de Vite se carguen como módulos
+		add_filter('script_loader_tag', function ($tag, $handle, $src) {
+			if (in_array($handle, ['framework-app', 'framework-map-app'], true)) {
+				return '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
 			}
+			return $tag;
+		}, 10, 3);
+
+
+		add_action('woocommerce_account_dashboard', function () {
+			echo app(MyAccountController::class)()->render();
 		});
-		*/
+		// Mapa interactivo — shortcode [framework_map]
+		app(MapController::class)->register();
+
+		// Panel de administración → Ajustes → Mapa Interactivo
+		app(MapSettingsController::class)->register();
 	}
 }

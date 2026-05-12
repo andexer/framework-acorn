@@ -241,7 +241,7 @@ export default ({
 			const values = Array.isArray(this.__state) ? this.__state : (this.__state ? [this.__state] : []);
 			values.forEach(val => {
 				const el = this.$rover.getElementByValue(val);
-				if (!el || Object.hasOwn(el.dataset, 'selected')) return;
+				if (!el || 'selected' in el.dataset) return;
 				el.dataset.selected = 'true';
 			});
 		},
@@ -300,7 +300,7 @@ export const CreateNewOptionActivator = () => ({
 
 		if (window.Livewire !== undefined) {
 			window.Livewire.hook('commit', ({ component, succeed }) => {
-				if (component.id === LIVEWIRE_ID) {
+				if (component.id === COMBOBOX_LIVEWIRE_ID) {
 					succeed(() => {
 						this.$nextTick(() => this.activate());
 					});

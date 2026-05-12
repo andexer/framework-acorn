@@ -186,7 +186,7 @@ export default ({
 
 					if (el === undefined) return;
 
-					if (Object.hasOwn(el.dataset, 'selected')) return;
+					if ('selected' in el.dataset) return;
 
 					el.dataset.selected = 'true';
 				})
