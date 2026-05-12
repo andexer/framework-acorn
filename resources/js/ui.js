@@ -3,6 +3,8 @@ import autocompleteComponent from './components/autocomplete.js';
 import comboboxComponent, { CreateNewOptionActivator as ComboboxActivator } from './components/combobox.js';
 import selectComponent, { CreateNewOptionActivator as SelectActivator } from './components/select.js';
 import sliderComponent from './components/slider.js';
+import imageCropperComponent from './components/image-cropper.js';
+
 import { registerToastStore, toastItem } from './components/toast.js';
 
 export function defineReactiveMagicProperty(name, rawObject) {
@@ -66,6 +68,13 @@ document.addEventListener('livewire:init', () => {
 		Alpine.data('sliderComponent', sliderComponent);
 	} catch (e) {
 		console.error('Failed to register Slider:', e);
+	}
+
+	try {
+		console.log('Registering Image Cropper...');
+		Alpine.data('imageCropperComponent', imageCropperComponent);
+	} catch (e) {
+		console.error('Failed to register Image Cropper:', e);
 	}
 
 	console.log('Framework UI initialization complete.');

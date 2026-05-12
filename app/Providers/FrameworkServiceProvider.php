@@ -78,9 +78,9 @@ class FrameworkServiceProvider extends ServiceProvider
 		add_action('woocommerce_account_dashboard', function () {
 			echo app(MyAccountController::class)()->render();
 		});
+
 		// Mapa interactivo — shortcode [framework_map]
 		app(MapController::class)->register();
-
 		app(AdminPanelController::class)->register();
 		app(MapSettingsController::class)->register();
 	}
