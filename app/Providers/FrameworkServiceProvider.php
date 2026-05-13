@@ -70,6 +70,16 @@ class FrameworkServiceProvider extends ServiceProvider
             }
             $this->enqueueFrameworkAssets();
         }, 100);
+
+        add_action('admin_head', function (): void {
+            $page = sanitize_key((string) ($_GET['page'] ?? ''));
+            if ($page === '' || ! str_starts_with($page, 'framework-')) {
+                return;
+            }
+            remove_all_actions('admin_notices');
+            remove_all_actions('all_admin_notices');
+            remove_all_actions('network_admin_notices');
+        }, 999);
         // Asegurar que los scripts de Vite se carguen como módulos
         add_filter('script_loader_tag', function ($tag, $handle, $src) {
             if (in_array($handle, ['framework-app', 'framework-islands-app'], true)) {

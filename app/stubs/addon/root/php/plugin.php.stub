@@ -2,8 +2,10 @@
 
 /**
  * Plugin Name: {{name}}
- * Description: Addon que depende del Framework Core (plugin).
+ * Description: {{name}} Addon que depende del Framework Core (plugin).
  * Version:     1.0.0
+ * Author:      Andexer
+ * Author URI:  https://github.com/andexer
  * Requires Plugins: framework
  * Framework Addon: true
  * License:     GPLv2 or later
