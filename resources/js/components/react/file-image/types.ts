@@ -8,15 +8,15 @@ export interface CroppedAreaPixels {
 }
 
 export interface FileImageEditorProps {
-	/** Wire component ID for dispatching back to Livewire */
+	
 	wireId: string;
-	/** Initial image URL (if editing existing) */
+	
 	initialUrl?: string;
-	/** Aspect ratio: undefined = free, 1 = square, 16/9, etc. */
+	
 	aspectRatio?: number;
-	/** Max output size in MB (browser-image-compression) */
+	
 	maxSizeMB?: number;
-	/** Output image quality 0–1 */
+	
 	quality?: number;
 }
 

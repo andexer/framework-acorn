@@ -87,7 +87,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 			setResult(newResult);
 			setIsModalOpen(false);
 
-			// Dispatch to Livewire
+			
 			const wire = getLivewireComponent(wireId);
 			if (wire) {
 				wire.imageReady(newResult.base64);
@@ -108,7 +108,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 
 	return (
 		<div className="flex items-center gap-5 w-full">
-			{/* Simple Preview / Trigger */}
+			{}
 			<div 
 				className="relative shrink-0 size-24 sm:size-28 rounded-2xl bg-zinc-50 border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand-400 group transition-colors shadow-sm"
 				onClick={() => fileInputRef.current?.click()}
@@ -144,11 +144,11 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 			</div>
 			<input type="file" ref={fileInputRef} className="hidden" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileSelected} />
 
-			{/* Modal Overlay */}
+			{}
 			{isModalOpen && imageSrc && (
 				<div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-zinc-900/80 backdrop-blur-sm">
 					<div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-						{/* Modal Header */}
+						{}
 						<div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-zinc-50/50">
 							<h3 className="text-lg font-black text-zinc-800 tracking-tight">Editor de Imagen</h3>
 							<button 
@@ -161,7 +161,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 							</button>
 						</div>
 
-						{/* Modal Body */}
+						{}
 						<div className="p-6">
 							<CropEditor
 								imageSrc={imageSrc}
@@ -172,7 +172,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 							/>
 						</div>
 
-						{/* Compressing Overlay */}
+						{}
 						{compressing && (
 							<div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
 								<div className="size-12 rounded-full border-4 border-brand-500 border-t-transparent animate-spin mb-4" />

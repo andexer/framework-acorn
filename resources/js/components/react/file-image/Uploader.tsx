@@ -62,7 +62,7 @@ export const Uploader: React.FC<UploaderProps> = ({ onFileSelected }) => {
 			onDragLeave={() => setDragging(false)}
 			onDrop={onDrop}
 		>
-			{/* Icon */}
+			{}
 			<div className={[
 				'mb-5 flex size-16 items-center justify-center rounded-2xl shadow-lg transition-all duration-200',
 				dragging ? 'bg-brand-500 shadow-brand-500/30' : 'bg-white shadow-zinc-200/80',

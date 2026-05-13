@@ -3,15 +3,15 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { CountryConfig } from './countries';
 
-// ── Fix: Leaflet default icon paths broken por Vite/webpack ──────────────
+
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
 	iconRetinaUrl: 'https://unpkg.com/leaflet@latest/dist/images/marker-icon-2x.png',
-	iconUrl:       'https://unpkg.com/leaflet@latest/dist/images/marker-icon.png',
-	shadowUrl:     'https://unpkg.com/leaflet@latest/dist/images/marker-shadow.png',
+	iconUrl: 'https://unpkg.com/leaflet@latest/dist/images/marker-icon.png',
+	shadowUrl: 'https://unpkg.com/leaflet@latest/dist/images/marker-shadow.png',
 });
 
-// ── Icono personalizado con color de acento ───────────────────────────────
+
 const accentIcon = new L.Icon({
 	iconUrl: `data:image/svg+xml;utf8,${encodeURIComponent(`
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
@@ -20,12 +20,12 @@ const accentIcon = new L.Icon({
 			<circle cx="12" cy="12" r="5" fill="#fff"/>
 		</svg>
 	`)}`,
-	iconSize:   [24, 36],
+	iconSize: [24, 36],
 	iconAnchor: [12, 36],
 	popupAnchor: [0, -36],
 });
 
-// ── Subcomponente: mueve el mapa cuando cambia el país ────────────────────
+
 interface FlyToProps {
 	lat: number;
 	lng: number;
@@ -40,10 +40,10 @@ function FlyTo({ lat, lng, zoom }: FlyToProps): null {
 	return null;
 }
 
-// ── Componente principal ──────────────────────────────────────────────────
+
 export interface MapComponentProps {
 	country: CountryConfig & { code: string };
-	/** Altura del mapa en píxeles (default 480) */
+	
 	height?: number;
 }
 
@@ -60,20 +60,20 @@ export function MapComponent({ country, height = 480 }: MapComponentProps) {
 				zoom={zoom}
 				scrollWheelZoom={true}
 				style={{ height: '100%', width: '100%' }}
-				// Sin atribución molesta de Leaflet en el footer
+				
 				attributionControl={true}
 			>
-				{/* Tiles OpenStreetMap — sin API key, libre */}
+				{}
 				<TileLayer
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 					maxZoom={19}
 				/>
 
-				{/* Vuelo animado cuando cambia el país */}
+				{}
 				<FlyTo lat={lat} lng={lng} zoom={zoom} />
 
-				{/* Marcador sobre el país */}
+				{}
 				<Marker position={[lat, lng]} icon={accentIcon}>
 					<Popup>
 						<strong style={{ fontSize: '1rem' }}>{nameEs}</strong>

@@ -12,7 +12,7 @@ interface PreviewProps {
 export const Preview: React.FC<PreviewProps> = ({ result, compressing, onConfirm, onRedo }) => {
 	return (
 		<div className="flex flex-col gap-5 w-full">
-			{/* Image preview */}
+			{}
 			<div className="relative w-full rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200 flex items-center justify-center"
 				style={{ minHeight: '260px' }}
 			>
@@ -29,7 +29,7 @@ export const Preview: React.FC<PreviewProps> = ({ result, compressing, onConfirm
 				/>
 			</div>
 
-			{/* Metadata badges */}
+			{}
 			<div className="flex flex-wrap items-center gap-2">
 				<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600 border border-zinc-200">
 					<svg className="size-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -46,7 +46,7 @@ export const Preview: React.FC<PreviewProps> = ({ result, compressing, onConfirm
 				</span>
 			</div>
 
-			{/* Action buttons */}
+			{}
 			<div className="flex gap-2">
 				<button
 					type="button"

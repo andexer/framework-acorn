@@ -18,12 +18,9 @@ function parseNumber(value: string | undefined, fallback: number): number {
 	return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-type LivewireWireComponent = {
-	setCoordinates: (lat: number, lng: number) => unknown;
-};
 
 function getWireComponent(id: string) {
-	const livewire = (window as unknown as { Livewire?: { find: (componentId: string) => LivewireWireComponent | null } }).Livewire;
+	const livewire = window.Livewire;
 	if (!livewire) {
 		return null;
 	}

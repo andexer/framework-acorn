@@ -17,7 +17,6 @@ function parseNumber(value: string | undefined, fallback: number | undefined): n
 }
 
 function getWireId(container: HTMLElement): string {
-	// From data attribute or walk up to the Livewire root
 	const fromData = container.dataset.wireId ?? '';
 	if (fromData !== '') return fromData;
 	const root = container.closest<HTMLElement>('[wire\\:id]');
@@ -30,10 +29,7 @@ function mountEditor(container: HTMLElement) {
 
 	if (mounts.has(key)) {
 		const state = mounts.get(key)!;
-		// If it's the exact same DOM node, do nothing
 		if (state.container === container) return;
-		
-		// The DOM node was replaced (e.g. Livewire morphing). Unmount the old one.
 		state.root.unmount();
 	}
 
@@ -58,22 +54,17 @@ function mountAll() {
 	document.querySelectorAll<HTMLElement>('[data-file-image-root="1"]').forEach(mountEditor);
 }
 
-// Initial mount
+
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', mountAll);
 } else {
 	mountAll();
 }
 
-// Re-mount after Livewire navigation / morphing
 window.addEventListener('livewire:navigated', mountAll);
 
-// Support Livewire morph: after a component re-renders the island may be
-// re-created, so we listen for Livewire's commit hook.
 document.addEventListener('livewire:init', () => {
-	// @ts-expect-error — Livewire global hook
 	if (typeof window.Livewire !== 'undefined') {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(window as any).Livewire.hook('commit', ({ component }: { component: { el: HTMLElement } }) => {
 			const islands = component.el?.querySelectorAll<HTMLElement>('[data-file-image-root="1"]');
 			islands?.forEach((el) => {

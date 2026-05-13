@@ -16,7 +16,7 @@ interface FileResult {
 }
 
 function getLivewireComponent(wireId: string) {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	
 	const livewire = (window as any).Livewire;
 	return livewire?.find(wireId) ?? null;
 }
@@ -42,7 +42,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		// Strict document validation (prevent images if uploaded via drag-drop or file picker bypass)
+		
 		if (file.type.startsWith('image/')) {
 			notify('error', 'El componente de documentos no acepta imágenes. Usa el cargador de imágenes para eso.');
 			e.target.value = '';
@@ -77,7 +77,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 		setFileResult(tempFile);
 		setIsModalOpen(false);
 
-		// Dispatch to Livewire
+		
 		const wire = getLivewireComponent(wireId);
 		if (wire) {
 			wire.fileReady(tempFile.base64, tempFile.name);
@@ -95,7 +95,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 
 	return (
 		<div className="flex items-center gap-5 w-full">
-			{/* Trigger Area */}
+			{}
 			<div 
 				className="relative shrink-0 size-24 sm:size-28 rounded-2xl bg-zinc-50 border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand-400 group transition-all shadow-sm"
 				onClick={() => fileInputRef.current?.click()}
@@ -122,7 +122,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 				)}
 			</div>
 
-			{/* Labels */}
+			{}
 			<div className="flex flex-col gap-1.5">
 				<button 
 					type="button"
@@ -145,11 +145,11 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 				onChange={handleFileSelected} 
 			/>
 
-			{/* Modal Viewer */}
+			{}
 			{isModalOpen && tempFile && (
 				<div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-zinc-900/80 backdrop-blur-sm">
 					<div className="bg-white rounded-3xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-						{/* Header */}
+						{}
 						<div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-zinc-50/50">
 							<div className="flex flex-col">
 								<h3 className="text-lg font-black text-zinc-800 tracking-tight leading-none">Previsualizar Documento</h3>
@@ -165,7 +165,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 							</button>
 						</div>
 
-						{/* Body (Viewer) */}
+						{}
 						<div className="flex-1 bg-zinc-100 relative overflow-hidden">
 							{isPdf ? (
 								<iframe 
@@ -190,7 +190,7 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 							)}
 						</div>
 
-						{/* Footer Actions */}
+						{}
 						<div className="p-6 border-t border-zinc-100 flex justify-center gap-3 bg-zinc-50/50">
 							<button
 								type="button"

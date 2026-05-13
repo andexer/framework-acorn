@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import CropperModule from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 
-// Fix TS JSX element type error for React 18+
+
 const Cropper = CropperModule as any;
 import type { CroppedAreaPixels } from './types';
 
@@ -47,7 +47,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 
 	return (
 		<div className="flex flex-col gap-0 w-full">
-			{/* Aspect Ratio Selector */}
+			{}
 			<div className="flex items-center justify-center gap-2 pb-4">
 				{availableRatios.map((ratio) => (
 					<button
@@ -65,7 +65,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 				))}
 			</div>
 
-			{/* Crop viewport */}
+			{}
 			<div className="relative w-full rounded-xl overflow-hidden bg-zinc-900" style={{ height: '340px' }}>
 				<Cropper
 					image={imageSrc}
@@ -83,9 +83,9 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 				/>
 			</div>
 
-			{/* Controls */}
+			{}
 			<div className="flex flex-col gap-3 pt-5 pb-1">
-				{/* Zoom */}
+				{}
 				<div className="flex items-center gap-3">
 					<span className="w-16 shrink-0 text-xs font-semibold text-zinc-500 text-right">Zoom</span>
 					<input
@@ -100,7 +100,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 					<span className="w-10 text-xs font-mono text-zinc-400">{zoom.toFixed(1)}×</span>
 				</div>
 
-				{/* Rotation */}
+				{}
 				<div className="flex items-center gap-3">
 					<span className="w-16 shrink-0 text-xs font-semibold text-zinc-500 text-right">Rotación</span>
 					<input
@@ -115,7 +115,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 					<span className="w-10 text-xs font-mono text-zinc-400">{rotation}°</span>
 				</div>
 
-				{/* Quick rotate buttons */}
+				{}
 				<div className="flex items-center gap-2 justify-center pt-1">
 					<button
 						type="button"
@@ -147,7 +147,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 				</div>
 			</div>
 
-			{/* Action buttons */}
+			{}
 			<div className="flex gap-3 pt-3 justify-center">
 				<button
 					type="button"

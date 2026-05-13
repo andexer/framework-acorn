@@ -184,11 +184,32 @@ class MapController
 	private function normalizeReversePayload(array $body, float $lat, float $lng): array
 	{
 		$address = is_array($body['address'] ?? null) ? $body['address'] : [];
+		$displayName = (string) ($body['display_name'] ?? '');
 
 		$estado = $this->addressValue($address, ['state']);
-		$ciudad = $this->addressValue($address, ['city', 'town', 'village', 'hamlet']);
+		$ciudad = $this->addressValue($address, ['city', 'town', 'village', 'hamlet', 'city_district']);
 		$municipio = $this->addressValue($address, ['municipality', 'county']);
-		$parroquia = $this->addressValue($address, ['suburb', 'city_district', 'quarter', 'neighbourhood']);
+
+		// 1. Try to extract Parroquia from display_name (common in Venezuela Nominatim results)
+		$parroquia = '';
+		if (preg_match('/Parroquia\s+([^,]+)/i', $displayName, $matches)) {
+			$parroquia = trim($matches[1]);
+		}
+
+		// 2. Fallback to address fields if not found in display_name
+		if (empty($parroquia)) {
+			$parroquia = $this->addressValue($address, ['city_district', 'suburb', 'quarter', 'neighbourhood']);
+		}
+
+		// If parroquia is the same as city, try to see if we have a more specific suburb
+		if ($parroquia === $ciudad) {
+			$moreSpecific = $this->addressValue($address, ['suburb', 'quarter', 'neighbourhood']);
+			if ($moreSpecific !== '' && $moreSpecific !== $parroquia) {
+				// We keep the parroquia as is, but maybe we could use the more specific one elsewhere?
+				// For now, we follow the user request to fix the Parroquia field.
+			}
+		}
+
 		$codigoPostal = $this->addressValue($address, ['postcode']);
 
 		return [
@@ -199,7 +220,7 @@ class MapController
 			'codigo_postal' => $codigoPostal,
 			'latitud' => round($lat, 6),
 			'longitud' => round($lng, 6),
-			'direccion_completa' => (string) ($body['display_name'] ?? ''),
+			'direccion_completa' => $displayName,
 			'fuera_de_venezuela' => ! self::insideVenezuelaBounds($lat, $lng),
 		];
 	}

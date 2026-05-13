@@ -62,9 +62,8 @@ if (document.readyState === 'loading') {
 window.addEventListener('livewire:navigated', mountAll);
 
 document.addEventListener('livewire:init', () => {
-	// @ts-expect-error — Livewire global hook
 	if (typeof window.Livewire !== 'undefined') {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		
 		(window as any).Livewire.hook('commit', ({ component }: { component: { el: HTMLElement } }) => {
 			const islands = component.el?.querySelectorAll<HTMLElement>('[data-file-document-root="1"]');
 			islands?.forEach((el) => {

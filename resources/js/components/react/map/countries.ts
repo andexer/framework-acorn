@@ -1,24 +1,21 @@
-/**
- * Diccionario de países con código ISO 3166-1 alpha-2.
- * Venezuela es el país por defecto del sistema.
- */
+
 export interface CountryConfig {
 	name: string;
-	/** Nombre en español */
+	
 	nameEs: string;
-	/** Latitud del centro geográfico */
+	
 	lat: number;
-	/** Longitud del centro geográfico */
+	
 	lng: number;
-	/** Zoom inicial de Leaflet */
+	
 	zoom: number;
 }
 
 export const COUNTRIES: Record<string, CountryConfig> = {
-	// ── Venezuela (DEFAULT) ───────────────────────────────────────────
+	
 	VE: { name: 'Venezuela',         nameEs: 'Venezuela',         lat:   8.0,   lng:  -66.0,  zoom: 5 },
 
-	// ── Latinoamérica ─────────────────────────────────────────────────
+	
 	AR: { name: 'Argentina',         nameEs: 'Argentina',         lat: -38.0,   lng:  -65.0,  zoom: 4 },
 	BO: { name: 'Bolivia',           nameEs: 'Bolivia',           lat: -17.0,   lng:  -64.5,  zoom: 5 },
 	BR: { name: 'Brazil',            nameEs: 'Brasil',            lat: -14.235, lng:  -51.925, zoom: 4 },
@@ -40,7 +37,7 @@ export const COUNTRIES: Record<string, CountryConfig> = {
 	PR: { name: 'Puerto Rico',       nameEs: 'Puerto Rico',       lat:  18.221, lng:  -66.59,  zoom: 9 },
 	UY: { name: 'Uruguay',           nameEs: 'Uruguay',           lat: -32.523, lng:  -55.766, zoom: 7 },
 
-	// ── Resto del mundo ───────────────────────────────────────────────
+	
 	US: { name: 'United States',     nameEs: 'Estados Unidos',    lat:  37.09,  lng:  -95.713, zoom: 4 },
 	CA: { name: 'Canada',            nameEs: 'Canadá',            lat:  56.13,  lng:  -106.347, zoom: 4 },
 	ES: { name: 'Spain',             nameEs: 'España',            lat:  40.463, lng:   -3.749,  zoom: 5 },
