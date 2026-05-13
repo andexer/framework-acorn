@@ -18,6 +18,8 @@ export interface FileImageEditorProps {
 	maxSizeMB?: number;
 	
 	quality?: number;
+
+	accept?: string;
 }
 
 export interface ImageResult {

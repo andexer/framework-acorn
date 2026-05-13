@@ -2,22 +2,36 @@
 
 use App\Actions\Map\CheckVenezuelaBoundsAction;
 use App\Actions\Map\ReverseGeocodeAction;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 new class extends Component
 {
 	public string $estado = '';
+
 	public string $ciudad = '';
+
 	public string $municipio = '';
+
 	public string $parroquia = '';
+
 	public string $codigo_postal = '';
+
 	public string $latitud = '10.480600';
+
 	public string $longitud = '-66.903600';
+
 	public string $latitud_valida = '10.480600';
+
 	public string $longitud_valida = '-66.903600';
+
 	public string $direccion_completa = '';
+
+	#[Validate('required', message: 'El punto de referencia es obligatorio')]
 	public string $punto_referencia = '';
+
 	public bool $fuera_de_venezuela = false;
+
 	public int $altura_mapa = 460;
 
 	public function mount(?float $latitud = null, ?float $longitud = null, ?int $altura = null, ?string $punto_referencia = ''): void
@@ -46,7 +60,9 @@ new class extends Component
 		$lat = round($lat, 6);
 		$lng = round($lng, 6);
 
+		// 1. Validación rápida (rectángulo)
 		if (! app(CheckVenezuelaBoundsAction::class)($lat, $lng)) {
+			$this->dispatch('notify', content: 'Esa dirección es inválida. No se permiten referencias externas al país.', type: 'error');
 			$this->fuera_de_venezuela = true;
 			$this->latitud = $this->latitud_valida;
 			$this->longitud = $this->longitud_valida;
@@ -54,12 +70,23 @@ new class extends Component
 			return;
 		}
 
+		// 2. Hidratar dirección y verificar país exacto (Nominatim)
+		$this->hydrateAddressFromEndpoint($lat, $lng);
+
+		if ($this->fuera_de_venezuela) {
+			$this->dispatch('notify', content: 'Esa dirección es inválida. No se permiten referencias externas al país.', type: 'error');
+			$this->latitud = $this->latitud_valida;
+			$this->longitud = $this->longitud_valida;
+			$this->dispatchSyncEvent((float) $this->latitud_valida, (float) $this->longitud_valida);
+			return;
+		}
+
+		// 3. Es válida, actualizar valores
 		$this->latitud_valida = number_format($lat, 6, '.', '');
 		$this->longitud_valida = number_format($lng, 6, '.', '');
 		$this->latitud = $this->latitud_valida;
 		$this->longitud = $this->longitud_valida;
-		$this->fuera_de_venezuela = false;
-		$this->hydrateAddressFromEndpoint($lat, $lng);
+		
 		$this->dispatchSyncEvent($lat, $lng);
 	}
 
@@ -111,12 +138,12 @@ new class extends Component
 
 	private function enqueueMapaDireccionesAssets(): void
 	{
-		if (wp_script_is('framework-mapa-direcciones-app', 'enqueued')) {
+		if (wp_script_is('framework-islands-app', 'enqueued')) {
 			return;
 		}
 
 		$manifest = get_plugin_manifest();
-		$entry = 'resources/js/components/react/map-direcciones.bootstrap.tsx';
+		$entry = 'resources/js/components/react/islands.bootstrap.tsx';
 		if (! isset($manifest[$entry])) {
 			return;
 		}
@@ -124,12 +151,12 @@ new class extends Component
 		$baseUrl = get_plugin_uri('public/build/');
 
 		foreach (get_manifest_entry_css_files($manifest, $entry) as $cssFile) {
-			wp_enqueue_style('framework-mapa-direcciones-' . md5($cssFile), $baseUrl . $cssFile, [], null);
+			wp_enqueue_style('framework-islands-'.md5($cssFile), $baseUrl.$cssFile, [], null);
 		}
 
 		wp_enqueue_script(
-			'framework-mapa-direcciones-app',
-			$baseUrl . $manifest[$entry]['file'],
+			'framework-islands-app',
+			$baseUrl.$manifest[$entry]['file'],
 			['framework-app'],
 			null,
 			['strategy' => 'defer', 'in_footer' => true],
@@ -202,7 +229,9 @@ new class extends Component
 						wire:model.blur="punto_referencia"
 						class="py-3 rounded-2xl border-zinc-200"
 						placeholder="Al lado del banco BNC"
+						required
 					/>
+					<x-ui.error name="punto_referencia" />
 				</x-ui.field>
 
 				{{-- Grid: Estado, Municipio, Parroquia --}}

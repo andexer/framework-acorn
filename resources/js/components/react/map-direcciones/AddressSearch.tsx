@@ -8,7 +8,7 @@ interface SearchResult {
 }
 
 interface AddressSearchProps {
-	onSelect: (lat: number, lng: number) => void;
+	onSelect: (lat: number, lng: number, isVenezuela: boolean) => void;
 }
 
 export function AddressSearch({ onSelect }: AddressSearchProps) {
@@ -38,7 +38,7 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
 			setLoading(true);
 			try {
 				const response = await fetch(
-					`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ve&limit=5`
+					`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`
 				);
 				const data = await response.json();
 				setResults(data);
@@ -82,7 +82,8 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
 							<li
 								key={result.place_id}
 								onClick={() => {
-									onSelect(Number(result.lat), Number(result.lon));
+									const isVenezuela = (result as any).address?.country_code === 've';
+									onSelect(Number(result.lat), Number(result.lon), isVenezuela);
 									setQuery(result.display_name);
 									setIsOpen(false);
 								}}

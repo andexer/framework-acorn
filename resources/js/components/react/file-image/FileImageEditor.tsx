@@ -22,6 +22,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 	aspectRatio,
 	maxSizeMB = 1,
 	quality = 0.92,
+	accept = 'image/jpeg,image/png,image/webp,image/gif',
 }) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -132,17 +133,17 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 			<div className="flex flex-col gap-1.5">
 				<button 
 					type="button"
-					className="text-sm font-bold text-brand-600 hover:text-brand-700 text-left transition-colors w-fit" 
+					className="relative! inline-flex! items-center! font-bold! justify-center! transition-all! duration-200! cursor-pointer! rounded-xl! bg-gradient-to-br! from-brand-500! to-brand-600! text-white! border-none! shadow-sm! hover:brightness-110! active:scale-95! text-xs! px-4! py-2! w-fit!"
 					onClick={() => fileInputRef.current?.click()}
 				>
 					{currentDisplayUrl ? 'Cambiar imagen' : 'Subir imagen'}
 				</button>
 				<p className="text-xs font-medium text-zinc-500">
-					Formatos: JPG, PNG o WebP.<br />
+					Formatos: {accept.replace(/image\//g, '').toUpperCase()}.<br />
 					Tamaño máximo: {maxSizeMB} MB.
 				</p>
 			</div>
-			<input type="file" ref={fileInputRef} className="hidden" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFileSelected} />
+			<input type="file" ref={fileInputRef} className="hidden" accept={accept} onChange={handleFileSelected} />
 
 			{}
 			{isModalOpen && imageSrc && (

@@ -123,16 +123,57 @@ export const FileDocumentEditor: React.FC<FileDocumentEditorProps> = ({
 			</div>
 
 			{}
-			<div className="flex flex-col gap-1.5">
-				<button 
-					type="button"
-					className="text-sm font-bold text-brand-600 hover:text-brand-700 text-left transition-colors w-fit" 
-					onClick={() => fileInputRef.current?.click()}
-				>
-					{currentUrl ? (fileResult?.name || 'Ver archivo') : 'Subir documento'}
-				</button>
+			<div className="flex flex-col gap-2.5">
+				<div className="flex items-center gap-2">
+					<button 
+						type="button"
+						className="relative! inline-flex! items-center! font-bold! justify-center! transition-all! duration-200! cursor-pointer! rounded-xl! bg-gradient-to-br! from-brand-500! to-brand-600! text-white! border-none! shadow-sm! hover:brightness-110! active:scale-95! text-xs! px-4! py-2! w-fit! max-w-[200px]! truncate!"
+						onClick={() => currentUrl ? setIsModalOpen(true) : fileInputRef.current?.click()}
+					>
+						{currentUrl ? (fileResult?.name || 'Ver archivo') : 'Subir documento'}
+					</button>
+
+					{currentUrl && (
+						<div className="flex items-center gap-1.5">
+							<button
+								type="button"
+								onClick={() => {
+									// Asegurar que tempFile tenga los datos actuales para el modal
+									if (fileResult) {
+										setTempFile(fileResult);
+									} else if (initialUrl) {
+										setTempFile({
+											base64: initialUrl,
+											name: 'Documento actual',
+											type: initialUrl.includes('pdf') ? 'application/pdf' : 'unknown',
+											size: 0
+										});
+									}
+									setIsModalOpen(true);
+								}}
+								className="relative! inline-flex! items-center! font-medium! justify-center! transition-all! duration-200! cursor-pointer! rounded-lg! border! border-zinc-200! bg-white! hover:bg-zinc-50! text-zinc-500! hover:text-brand-500! shadow-sm! w-8! h-8! min-w-8! min-h-8! max-w-8! max-h-8! p-0!"
+								title="Visualizar documento"
+							>
+								<svg className="size-4!" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+									<path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.644C3.752 8.548 7.532 5 12 5c4.468 0 8.248 3.548 9.964 6.678a1.062 1.062 0 0 1 0 .644C20.248 15.452 16.468 19 12 19c-4.468 0-8.248-3.548-9.964-6.678Z" />
+									<path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+								</svg>
+							</button>
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								className="relative! inline-flex! items-center! font-medium! justify-center! transition-all! duration-200! cursor-pointer! rounded-lg! border! border-zinc-200! bg-white! hover:bg-zinc-50! text-zinc-500! hover:text-brand-500! shadow-sm! w-8! h-8! min-w-8! min-h-8! max-w-8! max-h-8! p-0!"
+								title="Reemplazar documento"
+							>
+								<svg className="size-4!" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+									<path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+								</svg>
+							</button>
+						</div>
+					)}
+				</div>
 				<p className="text-xs font-medium text-zinc-500 leading-relaxed">
-					PDF, Imágenes o Office.<br />
+					Archivos: {accept.replace(/\./g, '').toUpperCase()}.<br />
 					Máximo {maxSizeMB} MB.
 				</p>
 			</div>

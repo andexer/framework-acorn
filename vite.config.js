@@ -17,10 +17,7 @@ export default defineConfig({
 			input: [
 				'resources/css/app.css',
 				'resources/js/app.js',
-				'resources/js/components/react/map.bootstrap.tsx',
-				'resources/js/components/react/map-direcciones.bootstrap.tsx',
-				'resources/js/components/react/file-image.bootstrap.tsx',
-				'resources/js/components/react/file-document.bootstrap.tsx',
+				'resources/js/components/react/islands.bootstrap.tsx',
 			],
 			refresh: true,
 		}),

@@ -34,17 +34,16 @@ class RenderMapShortcodeAction
 
     private function enqueueAssets(): void
     {
-        if (wp_script_is('framework-map-app', 'enqueued')) {
+        if (wp_script_is('framework-islands-app', 'enqueued')) {
             return;
         }
 
         try {
             $manifest = get_plugin_manifest();
-            $entry = 'resources/js/components/react/map.bootstrap.tsx';
+            $entry = 'resources/js/components/react/islands.bootstrap.tsx';
 
             if (! isset($manifest[$entry])) {
-                Log::error("Framework Map: Entry point [{$entry}] not found in manifest.");
-
+                Log::error("Framework Islands: Entry point [{$entry}] not found in manifest.");
                 return;
             }
 
@@ -55,7 +54,7 @@ class RenderMapShortcodeAction
             }
 
             wp_enqueue_script(
-                'framework-map-app',
+                'framework-islands-app',
                 $baseUrl.$manifest[$entry]['file'],
                 ['framework-app'],
                 null,

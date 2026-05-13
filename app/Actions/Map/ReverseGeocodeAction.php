@@ -91,6 +91,12 @@ class ReverseGeocodeAction
         }
 
         $codigoPostal = $this->addressValue($address, ['postcode']);
+        $countryCode  = strtolower($this->addressValue($address, ['country_code']));
+
+        $fueraDeVenezuela = !app(CheckVenezuelaBoundsAction::class)($lat, $lng);
+        if ($countryCode !== '' && $countryCode !== 've') {
+            $fueraDeVenezuela = true;
+        }
 
         return [
             'estado' => $estado,
@@ -101,7 +107,7 @@ class ReverseGeocodeAction
             'latitud' => round($lat, 6),
             'longitud' => round($lng, 6),
             'direccion_completa' => $displayName,
-            'fuera_de_venezuela' => ! app(CheckVenezuelaBoundsAction::class)($lat, $lng),
+            'fuera_de_venezuela' => $fueraDeVenezuela,
         ];
     }
 

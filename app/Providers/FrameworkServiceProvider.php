@@ -72,7 +72,7 @@ class FrameworkServiceProvider extends ServiceProvider
         }, 100);
         // Asegurar que los scripts de Vite se carguen como módulos
         add_filter('script_loader_tag', function ($tag, $handle, $src) {
-            if (in_array($handle, ['framework-app', 'framework-map-app', 'framework-mapa-direcciones-app', 'framework-file-image-app', 'framework-file-document-app'], true)) {
+            if (in_array($handle, ['framework-app', 'framework-islands-app'], true)) {
                 return '<script type="module" src="'.esc_url($src).'" id="'.esc_attr($handle).'-js"></script>';
             }
 
