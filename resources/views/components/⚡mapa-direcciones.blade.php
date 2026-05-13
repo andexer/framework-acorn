@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\MapController;
+use App\Actions\Map\CheckVenezuelaBoundsAction;
+use App\Actions\Map\ReverseGeocodeAction;
 use Livewire\Component;
 
 new class extends Component
@@ -45,7 +46,7 @@ new class extends Component
 		$lat = round($lat, 6);
 		$lng = round($lng, 6);
 
-		if (! MapController::insideVenezuelaBounds($lat, $lng)) {
+		if (! app(CheckVenezuelaBoundsAction::class)($lat, $lng)) {
 			$this->fuera_de_venezuela = true;
 			$this->latitud = $this->latitud_valida;
 			$this->longitud = $this->longitud_valida;
@@ -83,37 +84,19 @@ new class extends Component
 
 	private function hydrateAddressFromEndpoint(float $lat, float $lng): void
 	{
-		$request = new \WP_REST_Request(
-			'GET',
-			'/' . trim(MapController::REST_NAMESPACE, '/') . MapController::REST_REVERSE_ROUTE
-		);
-		$request->set_query_params([
-			'lat' => number_format($lat, 6, '.', ''),
-			'lng' => number_format($lng, 6, '.', ''),
-		]);
+		$payload = app(ReverseGeocodeAction::class)->handle($lat, $lng);
 
-		$response = rest_do_request($request);
-		if ($response->is_error()) {
+		if (! is_array($payload)) {
 			return;
 		}
 
-		$status = $response->get_status();
-		if ($status < 200 || $status >= 300) {
-			return;
-		}
-
-		$body = $response->get_data();
-		if (! is_array($body)) {
-			return;
-		}
-
-		$this->estado = (string) ($body['estado'] ?? '');
-		$this->ciudad = (string) ($body['ciudad'] ?? '');
-		$this->municipio = (string) ($body['municipio'] ?? '');
-		$this->parroquia = (string) ($body['parroquia'] ?? '');
-		$this->codigo_postal = (string) ($body['codigo_postal'] ?? '');
-		$this->direccion_completa = (string) ($body['direccion_completa'] ?? '');
-		$this->fuera_de_venezuela = (bool) ($body['fuera_de_venezuela'] ?? false);
+		$this->estado = (string) ($payload['estado'] ?? '');
+		$this->ciudad = (string) ($payload['ciudad'] ?? '');
+		$this->municipio = (string) ($payload['municipio'] ?? '');
+		$this->parroquia = (string) ($payload['parroquia'] ?? '');
+		$this->codigo_postal = (string) ($payload['codigo_postal'] ?? '');
+		$this->direccion_completa = (string) ($payload['direccion_completa'] ?? '');
+		$this->fuera_de_venezuela = (bool) ($payload['fuera_de_venezuela'] ?? false);
 	}
 
 	private function dispatchSyncEvent(float $lat, float $lng): void
