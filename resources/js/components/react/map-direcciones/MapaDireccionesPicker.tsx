@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { LatLngBoundsExpression } from 'leaflet';
+import { AddressSearch } from './AddressSearch';
 
 type Point = {
 	lat: number;
@@ -98,28 +99,41 @@ export function MapaDireccionesPicker({ lat, lng, height = 460, onPick, onOutsid
 		}
 	}, [lat, lng]);
 
-	return (
-		<div style={{ height, width: '100%', borderRadius: '14px', overflow: 'hidden' }}>
-			<MapContainer
-				center={center}
-				zoom={6}
-				minZoom={5}
-				maxZoom={18}
-				scrollWheelZoom={true}
-				maxBounds={MAP_BOUNDS}
-				maxBoundsViscosity={0.8}
-				style={{ height: '100%', width: '100%' }}
-			>
-				<TileLayer
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-					maxZoom={19}
-				/>
+	const handleSearchSelect = (newLat: number, newLng: number) => {
+		if (!insideVenezuela(newLat, newLng)) {
+			onOutside(newLat, newLng);
+			return;
+		}
+		setPoint({ lat: newLat, lng: newLng });
+		onPick(newLat, newLng);
+	};
 
-				<FlyToPoint point={point} />
-				<ClickHandler onPick={onPick} onOutside={onOutside} setPoint={setPoint} />
-				<Marker position={[point.lat, point.lng]} />
-			</MapContainer>
+	return (
+		<div className="w-full">
+			<AddressSearch onSelect={handleSearchSelect} />
+			
+			<div style={{ height, width: '100%', borderRadius: '24px', overflow: 'hidden', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+				<MapContainer
+					center={center}
+					zoom={15}
+					minZoom={5}
+					maxZoom={18}
+					scrollWheelZoom={true}
+					maxBounds={MAP_BOUNDS}
+					maxBoundsViscosity={0.8}
+					style={{ height: '100%', width: '100%' }}
+				>
+					<TileLayer
+						url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+						attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+						maxZoom={19}
+					/>
+
+					<FlyToPoint point={point} />
+					<ClickHandler onPick={onPick} onOutside={onOutside} setPoint={setPoint} />
+					<Marker position={[point.lat, point.lng]} />
+				</MapContainer>
+			</div>
 		</div>
 	);
 }

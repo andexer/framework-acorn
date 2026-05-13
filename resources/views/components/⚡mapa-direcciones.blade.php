@@ -15,11 +15,13 @@ new class extends Component
 	public string $latitud_valida = '10.480600';
 	public string $longitud_valida = '-66.903600';
 	public string $direccion_completa = '';
+	public string $punto_referencia = '';
 	public bool $fuera_de_venezuela = false;
 	public int $altura_mapa = 460;
 
-	public function mount(?float $latitud = null, ?float $longitud = null, ?int $altura = null): void
+	public function mount(?float $latitud = null, ?float $longitud = null, ?int $altura = null, ?string $punto_referencia = ''): void
 	{
+		$this->punto_referencia = $punto_referencia;
 		if ($latitud !== null && $longitud !== null) {
 			$this->latitud = number_format((float) $latitud, 6, '.', '');
 			$this->longitud = number_format((float) $longitud, 6, '.', '');
@@ -158,17 +160,25 @@ new class extends Component
 @endphp
 
 <div class="w-full">
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-		<x-ui.card class="!max-w-none border-orange-200/70 bg-white">
-			<div class="mb-4 flex items-center justify-between gap-3">
-				<x-ui.heading level="h3" size="md" class="text-orange-900">
-					{{ __('Mapa de direcciones', 'framework') }}
-				</x-ui.heading>
-				<x-ui.badge variant="outline" :color="$fuera_de_venezuela ? 'red' : 'orange'" pill>
-					{{ $fuera_de_venezuela ? __('Fuera de Venezuela', 'framework') : __('Dentro de Venezuela', 'framework') }}
-				</x-ui.badge>
+	<div>
+		{{-- Header --}}
+		<div class="px-8 py-6 border-b border-orange-50 bg-white flex items-center justify-between">
+			<div class="flex items-center gap-4">
+				<div class="size-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-200">
+					<svg class="size-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+						<path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+						<path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+					</svg>
+				</div>
+				<div>
+					<h2 class="text-xl font-black text-zinc-900 tracking-tight leading-tight">{{ __('Ubicación y Dirección', 'framework') }}</h2>
+					<p class="text-sm font-bold text-zinc-500">{{ __('Información de tu ubicación', 'framework') }}</p>
+				</div>
 			</div>
+		</div>
 
+		<div class="p-8 space-y-8">
+			{{-- Map Area (Includes Search) --}}
 			<div wire:ignore>
 				<div
 					data-mapa-direcciones-root="1"
@@ -176,69 +186,88 @@ new class extends Component
 					data-lat="{{ $latitud }}"
 					data-lng="{{ $longitud }}"
 					data-height="{{ $altura_mapa }}"
-				></div>
-			</div>
-		</x-ui.card>
-
-		<x-ui.card class="!max-w-none border-orange-200/70 bg-white">
-			<x-ui.heading level="h3" size="md" class="mb-4 text-orange-900">
-				{{ __('Datos seleccionados', 'framework') }}
-			</x-ui.heading>
-
-			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<x-ui.field>
-					<x-ui.label for="estado">{{ __('Estado', 'framework') }}</x-ui.label>
-					<x-ui.input id="estado" name="estado" :value="$estado" readonly />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="ciudad">{{ __('Ciudad', 'framework') }}</x-ui.label>
-					<x-ui.input id="ciudad" name="ciudad" :value="$ciudad" readonly />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="municipio">{{ __('Municipio', 'framework') }}</x-ui.label>
-					<x-ui.input id="municipio" name="municipio" :value="$municipio" readonly />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="parroquia">{{ __('Parroquia', 'framework') }}</x-ui.label>
-					<x-ui.input id="parroquia" name="parroquia" :value="$parroquia" readonly />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="codigo_postal">{{ __('Código postal', 'framework') }}</x-ui.label>
-					<x-ui.input id="codigo_postal" name="codigo_postal" :value="$codigo_postal" readonly />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="latitud">{{ __('Latitud', 'framework') }}</x-ui.label>
-					<x-ui.input id="latitud" name="latitud" wire:model.blur="latitud" />
-				</x-ui.field>
-
-				<x-ui.field>
-					<x-ui.label for="longitud">{{ __('Longitud', 'framework') }}</x-ui.label>
-					<x-ui.input id="longitud" name="longitud" wire:model.blur="longitud" />
-				</x-ui.field>
+				>
+					{{-- Skeleton --}}
+					<div class="animate-pulse space-y-4">
+						<div class="h-10 w-full bg-zinc-100 rounded-2xl"></div>
+						<div class="h-[460px] w-full bg-zinc-100 rounded-[2rem]"></div>
+					</div>
+				</div>
 			</div>
 
-			<div class="mt-4 rounded-lg border border-orange-100 bg-orange-50/50 p-3">
-				<x-ui.text class="text-sm text-orange-900">
-					<strong>{{ __('Dirección completa', 'framework') }}:</strong>
-				</x-ui.text>
-				<x-ui.text class="mt-1 block text-sm text-orange-800">
-					{{ $direccion_completa !== '' ? $direccion_completa : __('Sin datos de dirección.', 'framework') }}
-				</x-ui.text>
-				<ul class="mt-3 space-y-1">
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Estado', 'framework') }}:</strong> {{ $estado !== '' ? $estado : '-' }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Ciudad', 'framework') }}:</strong> {{ $ciudad !== '' ? $ciudad : '-' }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Municipio', 'framework') }}:</strong> {{ $municipio !== '' ? $municipio : '-' }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Parroquia', 'framework') }}:</strong> {{ $parroquia !== '' ? $parroquia : '-' }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Código postal', 'framework') }}:</strong> {{ $codigo_postal !== '' ? $codigo_postal : '-' }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Latitud', 'framework') }}:</strong> {{ $latitud }}</x-ui.text></li>
-					<li><x-ui.text class="text-xs text-orange-900"><strong>{{ __('Longitud', 'framework') }}:</strong> {{ $longitud }}</x-ui.text></li>
-				</ul>
+			{{-- Form Fields --}}
+			<div class="grid grid-cols-1 gap-6">
+				{{-- Full Address --}}
+				<x-ui.field>
+					<x-ui.label for="direccion_completa" class="text-zinc-700 font-bold mb-2">{{ __('Dirección Completa', 'framework') }}</x-ui.label>
+					<x-ui.input 
+						id="direccion_completa" 
+						name="direccion_completa" 
+						:value="$direccion_completa" 
+						class="py-3 rounded-2xl border-zinc-200"
+						readonly 
+						placeholder="Ej: Detodo24 parque cristal"
+					/>
+				</x-ui.field>
+
+				{{-- Punto de Referencia --}}
+				<x-ui.field>
+					<x-ui.label for="punto_referencia" class="text-zinc-700 font-bold mb-2">{{ __('Punto de Referencia', 'framework') }}</x-ui.label>
+					<x-ui.input 
+						id="punto_referencia" 
+						name="punto_referencia" 
+						wire:model.blur="punto_referencia"
+						class="py-3 rounded-2xl border-zinc-200"
+						placeholder="Al lado del banco BNC"
+					/>
+				</x-ui.field>
+
+				{{-- Grid: Estado, Municipio, Parroquia --}}
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<x-ui.field>
+						<x-ui.label for="estado" class="text-zinc-700 font-bold mb-2">{{ __('Estado', 'framework') }}</x-ui.label>
+						<x-ui.input id="estado" name="estado" :value="$estado" readonly class="rounded-2xl border-zinc-200 py-3" />
+					</x-ui.field>
+
+					<x-ui.field>
+						<x-ui.label for="municipio" class="text-zinc-700 font-bold mb-2">{{ __('Municipio', 'framework') }}</x-ui.label>
+						<x-ui.input id="municipio" name="municipio" :value="$municipio" readonly class="rounded-2xl border-zinc-200 py-3" />
+					</x-ui.field>
+
+					<x-ui.field>
+						<x-ui.label for="parroquia" class="text-zinc-700 font-bold mb-2">{{ __('Parroquia', 'framework') }}</x-ui.label>
+						<x-ui.input id="parroquia" name="parroquia" :value="$parroquia" readonly class="rounded-2xl border-zinc-200 py-3" />
+					</x-ui.field>
+				</div>
+
+				{{-- Grid: Ciudad, CP --}}
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<x-ui.field>
+						<x-ui.label for="ciudad" class="text-zinc-700 font-bold mb-2">{{ __('Ciudad', 'framework') }}</x-ui.label>
+						<x-ui.input id="ciudad" name="ciudad" :value="$ciudad" readonly class="rounded-2xl border-zinc-200 py-3" />
+					</x-ui.field>
+
+					<x-ui.field>
+						<x-ui.label for="codigo_postal" class="text-zinc-700 font-bold mb-2">{{ __('Código Postal', 'framework') }}</x-ui.label>
+						<x-ui.input 
+							id="codigo_postal" 
+							name="codigo_postal" 
+							:value="$codigo_postal" 
+							class="py-3 rounded-2xl border-zinc-200"
+							readonly 
+						/>
+					</x-ui.field>
+				</div>
+				
+				{{-- Coordinates (Hidden/Discreet) --}}
+				<div class="pt-4 flex gap-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+					<span>LAT: {{ $latitud }}</span>
+					<span>LNG: {{ $longitud }}</span>
+					@if($fuera_de_venezuela)
+						<span class="text-red-500 font-black ml-auto">⚠️ {{ __('FUERA DE VENEZUELA', 'framework') }}</span>
+					@endif
+				</div>
 			</div>
-		</x-ui.card>
+		</div>
 	</div>
 </div>

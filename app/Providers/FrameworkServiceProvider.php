@@ -68,7 +68,7 @@ class FrameworkServiceProvider extends ServiceProvider
 		}, 100);
 		// Asegurar que los scripts de Vite se carguen como módulos
 		add_filter('script_loader_tag', function ($tag, $handle, $src) {
-			if (in_array($handle, ['framework-app', 'framework-map-app', 'framework-mapa-direcciones-app'], true)) {
+			if (in_array($handle, ['framework-app', 'framework-map-app', 'framework-mapa-direcciones-app', 'framework-file-image-app', 'framework-file-document-app'], true)) {
 				return '<script type="module" src="' . esc_url($src) . '" id="' . esc_attr($handle) . '-js"></script>';
 			}
 			return $tag;
@@ -106,9 +106,7 @@ class FrameworkServiceProvider extends ServiceProvider
 			);
 			wp_set_script_translations('framework-app', 'framework', lang_path());
 		} catch (\Exception $e) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				Log::error('Framework: Error encolando activos - ' . $e->getMessage());
-			}
+			Log::error('Framework: Error encolando activos - ' . $e->getMessage());
 		}
 	}
 }

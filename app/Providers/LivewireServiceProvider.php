@@ -7,6 +7,7 @@ use Livewire\Livewire;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use Livewire\Mechanisms\FrontendAssets\FrontendAssets;
+use Livewire\Mechanisms\HandleRequests\EndpointResolver;
 
 class LivewireServiceProvider extends ServiceProvider
 {
@@ -47,7 +48,16 @@ class LivewireServiceProvider extends ServiceProvider
 	private function handle_livewire_requests(): void
 	{
 		$request = app('request');
-		if ($request->isMethod('POST') && $request->is('plugin-wire/*')) {
+
+		$isPluginWire = $request->is('plugin-wire/*');
+		$isDynamicWire = false;
+
+		if (class_exists(EndpointResolver::class)) {
+			$prefix = ltrim(EndpointResolver::prefix(), '/');
+			$isDynamicWire = $request->is($prefix . '/*');
+		}
+
+		if (($request->isMethod('POST') || $request->isMethod('GET')) && ($isPluginWire || $isDynamicWire)) {
 			app('router')->dispatch($request)->send();
 			exit;
 		}

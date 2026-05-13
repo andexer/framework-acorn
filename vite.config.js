@@ -19,6 +19,8 @@ export default defineConfig({
 				'resources/js/app.js',
 				'resources/js/components/react/map.bootstrap.tsx',
 				'resources/js/components/react/map-direcciones.bootstrap.tsx',
+				'resources/js/components/react/file-image.bootstrap.tsx',
+				'resources/js/components/react/file-document.bootstrap.tsx',
 			],
 			refresh: true,
 		}),

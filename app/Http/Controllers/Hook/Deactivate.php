@@ -7,15 +7,17 @@ use Illuminate\Support\Facades\File;
 
 class Deactivate
 {
-	protected string $corePlugin = 'framework/framework.php';
-
 	public function __invoke(): void
 	{
-		$this->deactivateFrameworkAddons();
-		Artisan::call('cache:clear');
-		Artisan::call('view:clear');
-		Artisan::call('config:clear');
-		$this->clearStorage();
+		try {
+			$this->deactivateFrameworkAddons();
+			Artisan::call('cache:clear');
+			Artisan::call('view:clear');
+			Artisan::call('config:clear');
+			$this->clearStorage();
+		} catch (\Exception $e) {
+			// Fail silently or log if needed
+		}
 	}
 
 	private function deactivateFrameworkAddons(): void
@@ -24,11 +26,12 @@ class Deactivate
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$corePlugin = defined('FRAMEWORK_PLUGIN_BASENAME') ? FRAMEWORK_PLUGIN_BASENAME : 'framework-acorn/framework-acorn.php';
 		$toDeactivate = [];
 		$plugins = get_plugins();
 
 		foreach ($plugins as $pluginFile => $data) {
-			if ($pluginFile === $this->corePlugin) {
+			if ($pluginFile === $corePlugin) {
 				continue;
 			}
 

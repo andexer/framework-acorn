@@ -58,8 +58,8 @@ final class Framework
 
 	private function lifecycle_hooks(): void
 	{
-		register_activation_hook(__FILE__, static fn() => app(Activate::class)());
-		register_deactivation_hook(__FILE__, static fn() => app(Deactivate::class)());
+		register_activation_hook(FRAMEWORK_PLUGIN_FILE, static fn() => app(Activate::class)());
+		register_deactivation_hook(FRAMEWORK_PLUGIN_FILE, static fn() => app(Deactivate::class)());
 	}
 }
 

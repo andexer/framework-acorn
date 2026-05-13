@@ -10,7 +10,11 @@
 		<br />
 		<hr />
 		<br />
-		<livewire:image-cropper />
+		<livewire:file-image />
+		<br />
+		<hr />
+		<br />
+		<livewire:file-document />	
 	</div>
 </div>
 </x-layouts::app>
