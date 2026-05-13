@@ -1,4 +1,0 @@
-<div>
-	<x-ui.heading>{{name}}</x-ui.heading>
-	<p>Componente Livewire activo.</p>
-</div>

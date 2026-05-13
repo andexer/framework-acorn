@@ -1,34 +1,34 @@
 ---
 name: modular-architecture
-description: Define el sistema de namespaces y scoping para componentes Livewire y vistas entre el Core y los Addons.
+description: Defines the namespace and scoping system for Livewire components and views between the Core and Addons.
 ---
 
 # **Skill: Modular Architecture & Scoping**
 
-Este repositorio utiliza una arquitectura modular donde un "Framework Core" gestiona múltiples "Addons" (plugins de WordPress).
+This repository utilizes a modular architecture where a "Framework Core" manages multiple "Addons" (WordPress plugins).
 
 ## **1. Blade Component Scoping (Global)**
 
-Los componentes de UI se comparten globalmente para mantener la consistencia del diseño.
+UI components are shared globally to maintain design consistency.
 
-*   **Sintaxis**: `<x-ui.component-name />`
-*   **Ubicación**: `resources/views/components/ui/` en el Core.
-*   **Uso**: Todos los addons "heredan" estos componentes y pueden usarlos sin prefijos.
+*   **Syntax**: `<x-ui.component-name />`
+*   **Location**: `resources/views/components/ui/` in the Core.
+*   **Usage**: All addons "inherit" these components and can use them without prefixes.
 
 ## **2. Livewire Component Scoping (Modular)**
 
-Para evitar colisiones de nombres, los componentes de Livewire están **namespaced** usando el slug del addon.
+To avoid naming collisions, Livewire components are **namespaced** using the addon's slug.
 
-### **Sintaxis e Interoperabilidad**
+### **Syntax and Interoperability**
 
-| Objetivo | Sintaxis | Descripción |
+| Target | Syntax | Description |
 | :--- | :--- | :--- |
-| **Componente Core** | `<livewire:name />` | Componentes globales del Framework Core. |
-| **Addon Actual** | `<livewire:current-slug::name />` | Componentes del addon en el que estás trabajando. |
-| **Cross-Addon** | `<livewire:other-slug::name />` | Componentes de otro addon (clave para la interoperabilidad). |
+| **Core Component** | `<livewire:name />` | Global components from the Framework Core. |
+| **Current Addon** | `<livewire:current-slug::name />` | Components from the addon you are currently working on. |
+| **Cross-Addon** | `<livewire:other-slug::name />` | Components from another addon (key for interoperability). |
 
 ## **3. View Scoping**
 
-Al renderizar vistas desde un addon, usa siempre el namespace del addon:
+When rendering views from an addon, always use the addon's namespace:
 *   **PHP**: `view('addon-slug::path.to.view')`
 *   **Blade**: `@include('addon-slug::partials.header')`

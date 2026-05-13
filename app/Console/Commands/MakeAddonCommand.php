@@ -8,29 +8,29 @@ use Illuminate\Support\Str;
 
 class MakeAddonCommand extends Command
 {
-	private const STUBS_BASE = __DIR__ . '/../../stubs/addon';
+	private const STUBS_BASE = __DIR__ . '/../../Framework/template/addon';
 
 	private const STATIC_STUBS = [
-		'root/php/plugin.php.stub'               => '{{slug}}.php',
-		'root/json/composer.json.stub'           => 'composer.json',
-		'root/php/web.php.stub'                  => 'routes/web.php',
-		'root/php/config.php.stub'               => 'config/{{slug}}.php',
-		'views/welcome.blade.stub'               => 'resources/views/welcome.blade.php',
-		'Http/Controllers/Home/HomeController.php.stub' => 'app/Http/Controllers/Home/HomeController.php',
-		'root/meta/gitignore.txt.stub'           => '.gitignore',
-		'root/env/env.env.stub'                  => '.env.example',
+		'plugin.php.stub'                        => '{{slug}}.php',
+		'composer.json.stub'                     => 'composer.json',
+		'routes/web.php.stub'                    => 'routes/web.php',
+		'config/config.php.stub'                 => 'config/{{slug}}.php',
+		'resources/views/welcome.blade.php.stub' => 'resources/views/welcome.blade.php',
+		'app/Http/Controllers/Home/HomeController.php.stub' => 'app/Http/Controllers/Home/HomeController.php',
+		'.gitignore.stub'                        => '.gitignore',
+		'.env.example.stub'                      => '.env.example',
 	];
 
 	private const HOOK_STUBS = [
-		'Hook/Activate.php.stub'   => 'app/Http/Controllers/Hook/Activate.php',
-		'Hook/Deactivate.php.stub' => 'app/Http/Controllers/Hook/Deactivate.php',
+		'app/Http/Controllers/Hook/Activate.php.stub'   => 'app/Http/Controllers/Hook/Activate.php',
+		'app/Http/Controllers/Hook/Deactivate.php.stub' => 'app/Http/Controllers/Hook/Deactivate.php',
 	];
 
 	private const ASSET_STUBS = [
-		'css/app.css.stub' => 'resources/css/app.css',
-		'js/app.js.stub'  => 'resources/js/app.js',
-		'root/js/vite.js.stub' => 'vite.config.js',
-		'root/json/package.json.stub' => 'package.json',
+		'resources/css/app.css.stub' => 'resources/css/app.css',
+		'resources/js/app.js.stub'   => 'resources/js/app.js',
+		'vite.config.js.stub'        => 'vite.config.js',
+		'package.json.stub'          => 'package.json',
 	];
 
 	private const LANG_STUBS = [
@@ -38,7 +38,7 @@ class MakeAddonCommand extends Command
 		'lang/es.php.stub' => 'lang/es/messages.php',
 	];
 
-	protected $signature = 'make:addon {name? : Nombre del plugin addon} {--namespace= : Namespace PSR-4} {--f|force : Sobreescribir si existe}';
+	protected $signature = 'make:addon {name? : Nombre del plugin addon} {--namespace= : Namespace PSR-4} {--description= : Descripción del addon} {--f|force : Sobreescribir si existe}';
 
 	protected $description = 'Genera un nuevo plugin addon que depende de este framework Core';
 
@@ -55,6 +55,11 @@ class MakeAddonCommand extends Command
 
 		$slug      = Str::slug($name);
 		$namespace = $this->option('namespace') ?: Str::studly($name);
+		
+		$description = $this->option('description');
+		if (! $description) {
+			$description = $this->ask('¿Descripción del addon?', "{$name} Addon que depende del Framework Core (plugin).");
+		}
 
 		$pluginsDir = dirname(base_path());
 		$addonPath  = $pluginsDir . '/' . $slug;
@@ -98,11 +103,12 @@ class MakeAddonCommand extends Command
 		$this->newLine();
 
 		$vars = [
-			'name'       => $name,
-			'slug'       => $slug,
-			'slug_snake' => str_replace('-', '_', $slug),
-			'namespace'  => $namespace,
-			'timestamp'  => now()->format('Y_m_d_His'),
+			'name'        => $name,
+			'slug'        => $slug,
+			'slug_snake'  => str_replace('-', '_', $slug),
+			'namespace'   => $namespace,
+			'timestamp'   => now()->format('Y_m_d_His'),
+			'description' => $description,
 		];
 
 		if ($this->option('force') && File::exists($addonPath)) {
@@ -189,7 +195,7 @@ class MakeAddonCommand extends Command
 		}
 
 		if ($this->features['livewire']) {
-			$this->publishStub(self::STUBS_BASE, 'views/components/⚡saludo.blade.stub', $basePath, 'resources/views/components/⚡saludo.blade.php', $vars);
+			$this->publishStub(self::STUBS_BASE, 'resources/views/components/⚡saludo.blade.php.stub', $basePath, 'resources/views/components/⚡saludo.blade.php', $vars);
 		}
 
 		if ($this->features['migrations']) {
@@ -230,7 +236,7 @@ class MakeAddonCommand extends Command
 
 	private function writeBinary(string $basePath, array $vars): void
 	{
-		$stubFile = self::STUBS_BASE . '/root/shell/bin.sh.stub';
+		$stubFile = self::STUBS_BASE . '/bin.sh.stub';
 		$content  = $this->replacePlaceholders(File::get($stubFile), $vars);
 		$binary   = "{$basePath}/{$vars['slug']}";
 
@@ -316,8 +322,8 @@ class MakeAddonCommand extends Command
 	private function replacePlaceholders(string $content, array $vars): string
 	{
 		return str_replace(
-			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{namespace}}', '{{timestamp}}'],
-			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['namespace'], $vars['timestamp']],
+			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{namespace}}', '{{timestamp}}', '{{description}}'],
+			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['namespace'], $vars['timestamp'], $vars['description']],
 			$content
 		);
 	}

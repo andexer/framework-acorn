@@ -1,44 +1,44 @@
 ---
 name: tailwind-specificity
-description: Maneja la especificidad de Tailwind v4 en entornos de WordPress usando el sufijo de importancia y patrones de dimensionamiento estricto.
+description: Handles Tailwind v4 specificity in WordPress environments using the importance suffix and strict sizing patterns.
 ---
 
 # **Skill: Tailwind v4 Specificity (Importance Suffix)**
 
-Cuando se trabaja en entornos de WordPress, los estilos del tema o de plugins externos pueden sobrescribir las utilidades de Tailwind CSS v4 debido a una mayor especificidad de CSS.
+When working in WordPress environments, active theme styles or external plugins can overwrite Tailwind CSS v4 utilities due to higher CSS specificity.
 
-## **Instrucción**
+## **Instruction**
 
-Cuando el usuario solicite "estilos irrompibles" o cuando encuentres conflictos de estilo con el tema activo de WordPress, **DEBES** aplicar el sufijo de importancia (`!`) al **final** de cada clase de utilidad.
+When the user requests "unbreakable styles" or when you encounter styling conflicts with the active WordPress theme, you **MUST** apply the importance suffix (`!`) at the **end** of each utility class.
 
-### **Reglas**
-1.  **Colocación del Sufijo**: Coloca el `!` al final del nombre de la utilidad (sintaxis de Tailwind v4).
-    *   **Correcto**: `bg-red-500!`
-    *   **Incorrecto**: `!bg-red-500`
-2.  **Interactividad**: Aplícalo también a pseudo-selectores y estados.
-    *   **Ejemplo**: `hover:bg-blue-600!`, `focus:ring-2!`, `md:text-lg!`
-3.  **Alcance**: Úsalo solo cuando se solicite o cuando las utilidades estándar estén siendo ignoradas por el navegador debido a conflictos de cascada.
+### **Rules**
+1.  **Suffix Placement**: Place the `!` at the end of the utility name (Tailwind v4 syntax).
+    *   **Correct**: `bg-red-500!`
+    *   **Incorrect**: `!bg-red-500`
+2.  **Interactivity**: Apply it to pseudo-selectors and states as well.
+    *   **Example**: `hover:bg-blue-600!`, `focus:ring-2!`, `md:text-lg!`
+3.  **Scope**: Use it only when requested or when standard utilities are being ignored by the browser due to cascade conflicts.
 
-## **Uso de Ejemplo**
+## **Example Usage**
 
 ```html
-<!-- Estándar (Puede ser sobrescrito por el tema) -->
+<!-- Standard (May be overwritten by the theme) -->
 <div class="bg-white p-4 text-gray-900">...</div>
 
-<!-- Irrompible (Gana la cascada) -->
+<!-- Unbreakable (Wins the cascade) -->
 <div class="bg-white! p-4! text-gray-900!">...</div>
 ```
 
-## **Strict Sizing (Integridad del Layout)**
+## **Strict Sizing (Layout Integrity)**
 
-En temas de WordPress altamente restrictivos, las clases de tamaño simples (como `w-8 h-8`) pueden ser ignoradas o sobrescritas parcialmente. Para asegurar la integridad total del diseño, **DEBES** aplicar el patrón de "Dimensionamiento Estricto":
+In highly restrictive WordPress themes, simple sizing classes (like `w-8 h-8`) might be ignored or partially overwritten. To ensure total layout integrity, you **MUST** apply the "Strict Sizing" pattern:
 
-**Patrón**: Usa `w-{n}! h-{n}! min-w-{n}! min-h-{n}! max-w-{n}! max-h-{n}!` simultáneamente.
+**Pattern**: Use `w-{n}! h-{n}! min-w-{n}! min-h-{n}! max-w-{n}! max-h-{n}!` simultaneously.
 
-### **Ejemplo**
+### **Example**
 ```html
-<!-- Botón cuadrado estricto de 32px (8 unidades) -->
+<!-- Strict 32px (8 units) square button -->
 <button class="w-8! h-8! min-w-8! min-h-8! max-w-8! max-h-8! p-0!">...</button>
 ```
 
-Usa este patrón para iconos, botones pequeños y avatares de tamaño fijo para evitar que el tema "estire" o "encoja" tus componentes de UI.
+Use this pattern for icons, small buttons, and fixed-size avatars to prevent the theme from "stretching" or "shrinking" your UI components.

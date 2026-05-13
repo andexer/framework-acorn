@@ -1,28 +1,28 @@
 ---
 name: hierarchy-and-logs
-description: Define la relación jerárquica entre el Core y los Addons, y el sistema de logs segmentado por componente.
+description: Defines the hierarchical relationship between Core and Addons, and the component-scoped logging system.
 ---
 
 # **Skill: Hierarchy & Logging System**
 
-Define la relación entre el Framework Padre y sus Addons hijos, y cómo se maneja el registro de logs.
+Defines the relationship between the Parent Framework (Core) and its child Addons, and how logging is handled.
 
-## **1. Jerarquía: Core vs. Addons**
+## **1. Hierarchy: Core vs. Addons**
 
-- **Parent Framework (Core)**: Orquestador. Inicia Acorn, registra componentes UI globales y provee utilidades compartidas (`slug: framework`).
-- **Child Addons**: Extensiones de funcionalidades. Heredan servicios del Core pero mantienen namespaces aislados para Livewire y lógica de negocio.
+- **Parent Framework (Core)**: Orchestrator. Bootstraps Acorn, registers global UI components, and provides shared utilities (`slug: framework`).
+- **Child Addons**: Feature extensions. They inherit services from the Core but maintain isolated namespaces for Livewire and business logic.
 
-## **2. Sistema de Logs (Logs Segmentados)**
+## **2. Logging System (Scoped Logs)**
 
-Los logs se almacenan segmentados por componente para facilitar la depuración.
+Logs are stored segmented by component to facilitate debugging.
 
-- **Ubicación**: `wp-content/plugins/framework/storage/logs/`
-- **Convención de Nombres**: `{scope}.log`
-    - **Logs del Framework**: `framework.log`
-    - **Logs de Addons**: `{addon-slug}.log` (ej: `mi-test.log`)
+- **Location**: `wp-content/plugins/framework/storage/logs/`
+- **Naming Convention**: `{scope}.log`
+    - **Framework Logs**: `framework.log`
+    - **Addon Logs**: `{addon-slug}.log` (e.g., `mi-test.log`)
 
-### **Instrucción para el Agente**
-Al depurar:
-1. Identifica el **Scope** (¿es un servicio core o una funcionalidad de addon?).
-2. Revisa el archivo de log correspondiente en `storage/logs/`.
-3. **NUNCA** asumas que todos los errores van a `laravel.log` o `debug.log`.
+### **Agent Instruction**
+When debugging:
+1. Identify the **Scope** (is it a core service or an addon feature?).
+2. Check the corresponding log file in `storage/logs/`.
+3. **NEVER** assume all errors go to `laravel.log` or `debug.log`.

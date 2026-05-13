@@ -14,7 +14,7 @@ This document defines the mandatory design patterns and architectural constraint
 4.  **MODULAR SCOPING**: Livewire components must use the `slug::` prefix for isolation and interoperability. Blade UI components are global. See [Modular Architecture Skill](./modular-architecture/SKILL.md).
 5.  **HIERARCHY & LOGS**: The Framework Core orchestrates Addons. Logs are scoped by name (e.g., `mi-test.log`) in the Core's storage. See [Hierarchy & Logs Skill](./hierarchy-and-logs/SKILL.md).
 6.  **UI COMPONENT RECOGNITION**:
-    *   Before editing any UI component, you **MUST** read its specific documentation in `./ui/components/{name}/{name}.md`.
+    *   Before editing any UI component, you **MUST** read its specific documentation in `./ui-components/ui/components/{name}/{name}.md`.
     *   Always use the `<x-ui.*>` prefix.
 
 ## **🛠️ TALL Stack Architecture (v4)**

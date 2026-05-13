@@ -48,15 +48,15 @@
 - Configuration lives in `resources/css/app.css` using `@theme`, `@source`, and `@layer`.
 - Theme variables already defined: `--color-brand-*` and `--font-sans`.
 - **Light Mode ONLY** — never use `dark:` classes.
-- **Specificity Rule**: In case of conflicts with WordPress theme styles, follow the [Tailwind Specificity Skill](.agents/skills/tailwind-specificity.md) using the `!` suffix (e.g., `bg-red-500!`).
+- **Specificity Rule**: In case of conflicts with WordPress theme styles, follow the [Tailwind Specificity Skill](.agents/skills/tailwind-specificity/SKILL.md) using the `!` suffix (e.g., `bg-red-500!`).
 
 ## UI Components
 
 - Components use prefix `<x-ui.*>` and live in `resources/views/components/ui/`.
-- **Modular Scoping**: Livewire components in addons MUST use the `slug::` namespace (e.g., `<livewire:my-addon::counter />`) to ensure interoperability and avoid collisions. See [Modular Architecture Skill](.agents/skills/modular-architecture.md).
-- Before creating or editing any UI component, read its docs in `resources/views/components-ui/components/<name>/<name>.md`.
-- Master design guide: `resources/views/components-ui/index.md`.
-- Interactive components must follow the three-layer binding pattern (Blade detection → Alpine `$entangle` / `$root._x_model` → `_state` logic). Docs: `resources/views/components-ui/posts/livewire-and-alpine-data-binding-the-pattern-sheaui-uses.md`.
+- **Modular Scoping**: Livewire components in addons MUST use the `slug::` namespace (e.g., `<livewire:my-addon::counter />`) to ensure interoperability and avoid collisions. See [Modular Architecture Skill](.agents/skills/modular-architecture/SKILL.md).
+- Before creating or editing any UI component, read its docs in `.agents/skills/ui-components/ui/components/<name>/<name>.md`.
+- Master design guide: `.agents/skills/ui-components/ui/index.md`.
+- Interactive components must follow the three-layer binding pattern (Blade detection → Alpine `$entangle` / `$root._x_model` → `_state` logic). Docs: `.agents/skills/ui-components/ui/posts/livewire-and-alpine-data-binding-the-pattern-sheaui-uses.md`.
 
 ## Livewire
 
@@ -72,7 +72,7 @@
 - **Log Management**: Logs are scoped by name and stored in `wp-content/plugins/framework/storage/logs/`.
     - Check `framework.log` for core issues.
     - Check `{addon-slug}.log` for specific addon issues.
-    - For more details, see the [Hierarchy & Logs Skill](.agents/skills/hierarchy-and-logs.md).
+    - For more details, see the [Hierarchy & Logs Skill](.agents/skills/hierarchy-and-logs/SKILL.md).
 
 ## Code Style
 

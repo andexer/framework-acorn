@@ -1,23 +1,23 @@
 ---
 name: ui-components
-description: Guía de uso y referencia de la biblioteca de componentes UI del framework (Blade + Alpine + Tailwind).
+description: Usage guide and reference for the framework's UI component library (Blade + Alpine + Tailwind).
 ---
 
 # **Skill: UI Components (Framework Core)**
 
-Esta skill define el sistema de diseño y la biblioteca de componentes disponibles en el framework.
+This skill defines the design system and the component library available in the framework.
 
-## **Filosofía de Diseño**
+## **Design Philosophy**
 
-- Los componentes son totalmente personalizables y siguen estrictamente el sistema de diseño del framework.
-- Todo es Blade puro, Alpine.js y Tailwind CSS v4.
-- Sin pasos de compilación complejos para el uso de componentes.
+- Components are fully customizable and strictly follow the framework's design system.
+- Everything is pure Blade, Alpine.js, and Tailwind CSS v4.
+- No complex build steps required for using components.
 
-## **Uso de Componentes**
+## **Using Components**
 
-Todos los componentes de UI se encuentran en `resources/views/components/ui/` y se invocan con el prefijo `<x-ui.*>`.
+All UI components are located in `resources/views/components/ui/` and are invoked using the `<x-ui.*>` prefix.
 
-### **Ejemplo Básico**
+### **Basic Example**
 
 ```html
 <x-ui.button variant="primary" size="lg">
@@ -25,26 +25,26 @@ Todos los componentes de UI se encuentran en `resources/views/components/ui/` y 
 </x-ui.button>
 
 <x-ui.card>
-    <x-slot name="header">Título de la Tarjeta</x-slot>
-    El contenido va aquí.
+    <x-slot name="header">Card Title</x-slot>
+    The content goes here.
 </x-ui.card>
 ```
 
-## **Componentes Disponibles**
+## **Available Components**
 
-| Componente | Descripción |
+| Component | Description |
 | :--- | :--- |
-| `icon` | Soporta múltiples librerías con estilizado consistente. |
-| `button` | Variantes: primary, secondary, destructive, ghost. |
-| `card` | Secciones: header, content, footer. |
-| `heading` | Escala tipográfica H1 a H6. |
-| `input` / `textarea` | Soporte para validación y auto-resize. |
-| `dropdown` | Accesible con navegación por teclado. |
-| `modal` / `popover` | Sistemas de superposición (overlays). |
-| `tabs` / `accordion` | Organización de contenido colapsable. |
-| `alert` / `toast` | Notificaciones y mensajes de estado. |
-| `field` | Unidad completa: Label + Input + Error. |
-| `avatar` | Representación de usuario con iniciales o imagen. |
-| `skeleton` | Placeholders de carga. |
+| `icon` | Supports multiple icon libraries with consistent styling. |
+| `button` | Variants: primary, secondary, destructive, ghost. |
+| `card` | Sections: header, content, footer. |
+| `heading` | Typographic scale H1 to H6. |
+| `input` / `textarea` | Support for validation and auto-resize. |
+| `dropdown` | Accessible with keyboard navigation. |
+| `modal` / `popover` | Overlay systems. |
+| `tabs` / `accordion` | Collapsible content organization. |
+| `alert` / `toast` | Notifications and status messages. |
+| `field` | Complete unit: Label + Input + Error. |
+| `avatar` | User representation with initials or image. |
+| `skeleton` | Loading placeholders. |
 
-*Para más detalles sobre un componente específico, consulta `.agents/skills/ui/components/{nombre}/{nombre}.md`.*
+*For more details about a specific component, check `.agents/skills/ui-components/ui/components/{name}/{name}.md`.*
