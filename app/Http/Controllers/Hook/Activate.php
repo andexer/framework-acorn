@@ -33,6 +33,9 @@ class Activate
 	private function generateAppKey(): void
 	{
 		if (empty(env('APP_KEY'))) {
+			if (config('app.key') === null) {
+				config(['app.key' => '']);
+			}
 			Artisan::call('key:generate', ['--force' => true]);
 		}
 	}
