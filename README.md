@@ -54,7 +54,7 @@ El framework implementa un patrón de arranque modular que permite:
 
 4. Active el plugin desde el panel de administración de WordPress o mediante WP-CLI:
    ```bash
-   wp plugin activate framework
+   wp plugin activate framework-acorn
    ```
 
 ## Desarrollo de Addons
