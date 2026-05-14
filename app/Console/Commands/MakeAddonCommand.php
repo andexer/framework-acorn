@@ -252,69 +252,31 @@ class MakeAddonCommand extends Command
 		$ns   = $vars['namespace'];
 		$slug = $vars['slug'];
 
-		$uses = ['use Illuminate\\Support\\ServiceProvider;'];
-		sort($uses);
-		$usesBlock = implode("\n", $uses);
-
-		$registerLines = [];
-
-		$registerLines[] = "\t\t\$this->mergeConfigFrom(__DIR__ . '/../../config/{$slug}.php', '{$slug}');";
+		$hookLines = [];
 
 		if ($this->features['hooks']) {
-			$registerLines[] = "\t\tregister_activation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Activate::class)());";
-			$registerLines[] = "\t\tregister_deactivation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Deactivate::class)());";
+			$hookLines[] = "\t\tregister_activation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Activate::class)());";
+			$hookLines[] = "\t\tregister_deactivation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Deactivate::class)());";
 		}
 
-		$bootLines = [
-			"\t\t\$this->loadViewsFrom(__DIR__ . '/../../resources/views', '{$slug}');",
-			"\t\t\$this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');",
-			"\n\t\tif (\$this->app->bound('blade.compiler')) {",
-			"\t\t\t\\Illuminate\Support\Facades\Blade::anonymousComponentPath(__DIR__ . '/../../resources/views/components/ui', 'ui');",
-			"\t\t}",
-		];
+		$registerBody = "\n\t\tparent::register();\n\t\t\$this->mergeConfigFrom(__DIR__ . '/../../config/{$slug}.php', '{$slug}');\n";
 
-		if ($this->features['livewire']) {
-			// Las vistas de Livewire se registran automáticamente en AddonBootstrapper
+		if ($hookLines) {
+			$registerBody .= implode("\n", $hookLines) . "\n";
 		}
 
+		$registerBody .= "\t";
+
+		$bootLines = ["\t\tparent::boot();"];
 		$bootLines[] = "\n\t\tapp(\\{$ns}\\Http\\Controllers\\Home\\HomeController::class);";
 
-		if ($this->features['migrations']) {
-			$bootLines[] = "\t\t\$this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');";
-		}
+		$bootBody = implode("\n", $bootLines);
 
-		if ($this->features['lang']) {
-			$bootLines[] = "\t\t\$this->loadTranslationsFrom(__DIR__ . '/../../lang', '{$slug}');";
-		}
-
-		if ($this->features['assets']) {
-			$bootLines[] = "\n\t\t// Assets pipeline (Vite Manifest)";
-			$bootLines[] = "\t\t\$manifest_path = dirname(__DIR__, 2) . '/public/build/manifest.json';";
-			$bootLines[] = "\t\tif (file_exists(\$manifest_path)) {";
-			$bootLines[] = "\t\t\t\$manifest = json_decode(file_get_contents(\$manifest_path), true);";
-			$bootLines[] = "\t\t\t\$css_file = \$manifest['resources/css/app.css']['file'] ?? null;";
-			$bootLines[] = "\t\t\t\$js_file  = \$manifest['resources/js/app.js']['file'] ?? null;";
-			$bootLines[] = "\t\t\t\$base_url = site_url('/wp-content/plugins/{$slug}/public/build/');";
-			$bootLines[] = "\n\t\t\tadd_action('wp_enqueue_scripts', function () use (\$css_file, \$js_file, \$base_url) {";
-			$bootLines[] = "\t\t\t\tif (\$css_file) {";
-			$bootLines[] = "\t\t\t\t\twp_enqueue_style('{$slug}-style', \$base_url . \$css_file, [], null);";
-			$bootLines[] = "\t\t\t\t}";
-			$bootLines[] = "\t\t\t\tif (\$js_file) {";
-			$bootLines[] = "\t\t\t\t\twp_enqueue_script('{$slug}-script', \$base_url . \$js_file, [], null, true);";
-			$bootLines[] = "\t\t\t\t}";
-			$bootLines[] = "\t\t\t});";
-			$bootLines[] = "\t\t}";
-		}
-
-		$registerBody = $registerLines ? "\n" . implode("\n", $registerLines) . "\n\t" : '';
-		$bootBody     = implode("\n", $bootLines);
-
-		$content = "<?php\n\nnamespace {$ns}\\Providers;\n\n{$usesBlock}\n\nclass AddonServiceProvider extends ServiceProvider\n{\n\tpublic function register(): void\n\t{{$registerBody}}\n\n\tpublic function boot(): void\n\t{\n{$bootBody}\n\t}\n}\n";
+		$content = "<?php\n\nnamespace {$ns}\\Providers;\n\nuse App\\Framework\\BaseAddonServiceProvider;\n\nclass AddonServiceProvider extends BaseAddonServiceProvider\n{\n\tpublic function register(): void\n\t{{$registerBody}}\n\n\tpublic function boot(): void\n\t{\n{$bootBody}\n\t}\n}\n";
 
 		File::put("{$basePath}/app/Providers/AddonServiceProvider.php", $content);
 		$this->line('  <fg=green>created</> app/Providers/AddonServiceProvider.php');
 	}
-
 	private function publishStub(string $stubsPath, string $stub, string $basePath, string $target, array $vars): void
 	{
 		$stubFile = "{$stubsPath}/{$stub}";

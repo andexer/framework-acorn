@@ -2,81 +2,103 @@
 
 namespace App\Framework;
 
+use App\Framework\Contracts\AddonContract;
+use App\Framework\Logging\ScopedMonologHandler;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Finder\Finder as LivewireFinder;
 
 final class AddonBootstrapper
 {
-    public static function register(string $providerClass): void
-    {
-        if (! function_exists('app') || ! app()->has('events')) {
-            return;
-        }
+	private static array $registeredProviders = [];
 
-        if (! is_a($providerClass, ServiceProvider::class, true)) {
-            return;
-        }
+	public static function register(string $providerClass): void
+	{
+		if (! function_exists('app') || ! app()->has('events')) {
+			return;
+		}
 
-        if (app()->getProvider($providerClass)) {
-            return;
-        }
+		if (! is_a($providerClass, ServiceProvider::class, true)) {
+			return;
+		}
 
-        app()->register($providerClass);
-        self::registerLivewireLocations($providerClass);
-    }
+		if (app()->getProvider($providerClass)) {
+			return;
+		}
 
-    public static function isReady(): bool
-    {
-        return function_exists('app') && app()->has('events');
-    }
+		app()->register($providerClass);
 
-    public static function version(): string
-    {
-        return app()->version();
-    }
+		$provider = app()->getProvider($providerClass);
 
-    private static function registerLivewireLocations(string $providerClass): void
-    {
-        if (! app()->bound('livewire.finder')) {
-            return;
-        }
+		if ($provider instanceof AddonContract) {
+			ScopedMonologHandler::registerAddonPath($provider->addonPath());
+			self::$registeredProviders[$provider->addonSlug()] = $provider->addonPath();
+		}
 
-        $finder = app('livewire.finder');
+		self::registerLivewireLocations($providerClass);
+	}
 
-        if (! $finder instanceof LivewireFinder) {
-            return;
-        }
+	public static function isReady(): bool
+	{
+		return function_exists('app') && app()->has('events');
+	}
 
-        $providerFile = (new \ReflectionClass($providerClass))->getFileName();
-        if (! is_string($providerFile) || $providerFile === '') {
-            return;
-        }
+	public static function version(): string
+	{
+		return app()->version();
+	}
 
-        $addonRoot = dirname($providerFile, 3);
-        $resources = $addonRoot . '/resources/views';
-        $components = $resources . '/components';
-        $livewireViews = $resources . '/livewire';
-        $layouts = $resources . '/layouts';
-        $pages = $resources . '/pages';
+	public static function registeredAddonSlugs(): array
+	{
+		return array_keys(self::$registeredProviders);
+	}
 
-        $slug = basename($addonRoot);
+	public static function registeredAddonPaths(): array
+	{
+		return self::$registeredProviders;
+	}
 
-        if (is_dir($components)) {
-            $finder->addLocation(viewPath: $components);
-            $finder->addNamespace($slug, viewPath: $components);
-        }
+	private static function registerLivewireLocations(string $providerClass): void
+	{
+		if (! app()->bound('livewire.finder')) {
+			return;
+		}
 
-        if (is_dir($livewireViews)) {
-            $finder->addLocation(viewPath: $livewireViews);
-            $finder->addNamespace($slug, viewPath: $livewireViews);
-        }
+		$finder = app('livewire.finder');
 
-        if (is_dir($layouts)) {
-            $finder->addNamespace('layouts', viewPath: $layouts);
-        }
+		if (! $finder instanceof LivewireFinder) {
+			return;
+		}
 
-        if (is_dir($pages)) {
-            $finder->addNamespace('pages', viewPath: $pages);
-        }
-    }
+		$providerFile = (new \ReflectionClass($providerClass))->getFileName();
+
+		if (! is_string($providerFile) || $providerFile === '') {
+			return;
+		}
+
+		$addonRoot = dirname($providerFile, 3);
+		$resources = $addonRoot . '/resources/views';
+		$components = $resources . '/components';
+		$livewireViews = $resources . '/livewire';
+		$layouts = $resources . '/layouts';
+		$pages = $resources . '/pages';
+		$slug = basename($addonRoot);
+
+		if (is_dir($components)) {
+			$finder->addLocation(viewPath: $components);
+			$finder->addNamespace($slug, viewPath: $components);
+		}
+
+		if (is_dir($livewireViews)) {
+			$finder->addLocation(viewPath: $livewireViews);
+			$finder->addNamespace($slug, viewPath: $livewireViews);
+		}
+
+		if (is_dir($layouts)) {
+			$finder->addNamespace('layouts', viewPath: $layouts);
+		}
+
+		if (is_dir($pages)) {
+			$finder->addNamespace('pages', viewPath: $pages);
+		}
+	}
 }

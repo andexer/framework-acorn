@@ -2,23 +2,19 @@
 
 namespace {{namespace}}\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Framework\BaseAddonServiceProvider;
 
-class AddonServiceProvider extends ServiceProvider
+class AddonServiceProvider extends BaseAddonServiceProvider
 {
 	public function register(): void
 	{
+		parent::register();
+
+		$this->mergeConfigFrom(__DIR__ . '/../../config/{{slug}}.php', '{{slug}}');
 	}
 
 	public function boot(): void
 	{
-		$this->loadViewsFrom(__DIR__ . '/../../resources/views', '{{slug}}');
-		$this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-
-		if ($this->app->bound('blade.compiler')) {
-			\Illuminate\Support\Facades\Blade::anonymousComponentPath(__DIR__ . '/../../resources/views/components/ui', 'ui');
-		}
-
-		app(\{{namespace}}\Http\Controllers\Home\HomeController::class);
+		parent::boot();
 	}
 }
