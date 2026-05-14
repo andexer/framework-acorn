@@ -122,7 +122,9 @@ class FrameworkServiceProvider extends ServiceProvider
 			);
 			wp_set_script_translations('framework-app', 'framework', lang_path());
 		} catch (\Exception $e) {
-			Log::error('Framework: Error encolando activos - ' . $e->getMessage());
+			if ($this->app->bound('log')) {
+				$this->app['log']->error('Framework: Error encolando activos - ' . $e->getMessage());
+			}
 		}
 	}
 }

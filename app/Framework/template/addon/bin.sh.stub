@@ -6,45 +6,39 @@ if (php_sapi_name() !== 'cli' && php_sapi_name() !== 'phpdbg') {
     exit("Forbidden: This script can only be run from the command line.\n");
 }
 
-if (!isset($_SERVER['HTTP_HOST'])) {
-    $_SERVER['HTTP_HOST'] = 'localhost';
+/**
+ * CLI proxy for {{slug}} addon.
+ *
+ * This script delegates all Artisan/Acorn commands to the framework's
+ * `wp acorn addon <slug> <command>` proxy, which correctly bootstraps
+ * the application without corrupting the already-booted Acorn container.
+ *
+ * Usage:
+ *   ./{{slug}} <command> [arguments]
+ *   ./{{slug}} list
+ *   ./{{slug}} make:controller MyController
+ */
+
+$slug = '{{slug}}';
+
+// Extract command and args from argv
+$args = array_slice($argv, 1);
+$command = array_shift($args) ?? 'list';
+$extraArgs = implode(' ', array_map('escapeshellarg', $args));
+
+// Build the wp acorn addon command
+// Detect if running inside DDEV or directly
+$inDdev = !empty(getenv('IS_DDEV_PROJECT')) || file_exists('/etc/ddev-hostname');
+
+if ($inDdev) {
+    // Inside DDEV container - call wp directly
+    $wpBin = 'wp';
+    $cmd = trim("{$wpBin} acorn addon {$slug} {$command} {$extraArgs}");
+} else {
+    // Outside DDEV - use ddev wp
+    $cmd = trim("ddev wp acorn addon {$slug} {$command} {$extraArgs}");
 }
 
-$addonAutoloader = __DIR__ . '/vendor/autoload.php';
-if (file_exists($addonAutoloader)) {
-    require_once $addonAutoloader;
-}
-
-$wpLoadPath = dirname(__DIR__, 3) . '/wp-load.php';
-if (!file_exists($wpLoadPath)) {
-    exit("Error: No se encontró wp-load.php en {$wpLoadPath}.\n");
-}
-
-require_once $wpLoadPath;
-
-if (!function_exists('app')) {
-    exit("Error: framework no está activo. Activa framework-acorn/framework-acorn.php primero.\n");
-}
-
-$app = app();
-
-if (method_exists($app, 'setBasePath')) {
-    $app->setBasePath(__DIR__);
-}
-
-$app->usePaths([
-    'app'       => __DIR__ . '/app',
-    'database'  => __DIR__ . '/database',
-    'resources' => __DIR__ . '/resources',
-    'config'    => __DIR__ . '/config',
-    'lang'      => __DIR__ . '/lang',
-]);
-
-$app->useNamespace('{{namespace}}\\');
-
-$status = $app->make(\Illuminate\Contracts\Console\Kernel::class)->handle(
-    $input = new \Symfony\Component\Console\Input\ArgvInput(),
-    new \Symfony\Component\Console\Output\ConsoleOutput()
-);
-
-exit($status);
+// Execute and pass through exit code
+passthru($cmd, $exitCode);
+exit($exitCode);

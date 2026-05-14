@@ -14,14 +14,48 @@ final class AddonExceptionLogger
 			return false;
 		}
 
-		Log::build([
-			'driver' => 'single',
-			'path' => storage_path("logs/{$plugin}.log"),
-			'level' => env('LOG_LEVEL', 'debug'),
-			'replace_placeholders' => true,
-		])->error($exception->getMessage(), [
-			'exception' => $exception,
-		]);
+		$logPath = storage_path("logs/{$plugin}.log");
+		
+		$details = "";
+		$curr = $exception;
+		while ($curr) {
+			$details .= sprintf(
+				"[%s] %s: %s in %s:%d\nStack trace:\n%s\n\n",
+				date('Y-m-d H:i:s'),
+				get_class($curr),
+				$curr->getMessage(),
+				$curr->getFile(),
+				$curr->getLine(),
+				$curr->getTraceAsString()
+			);
+			$curr = $curr->getPrevious();
+		}
+
+		$message = $details;
+
+		// Intentar usar el logger de Laravel si está disponible
+		try {
+			if (function_exists('app') && app()->bound('log')) {
+				app('log')->build([
+					'driver' => 'single',
+					'path' => $logPath,
+					'level' => env('LOG_LEVEL', 'debug'),
+					'replace_placeholders' => true,
+				])->error($exception->getMessage(), [
+					'exception' => $exception,
+				]);
+				return true;
+			}
+		} catch (\Throwable $e) {
+			// Fallback to error_log if Laravel logger fails
+		}
+
+		// Fallback: escribir directamente al archivo o al log de PHP
+		if (!is_dir(dirname($logPath))) {
+			mkdir(dirname($logPath), 0755, true);
+		}
+		file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+		error_log("Addon Error [{$plugin}]: " . $exception->getMessage());
 
 		return true;
 	}

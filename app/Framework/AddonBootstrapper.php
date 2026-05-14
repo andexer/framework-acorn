@@ -17,6 +17,10 @@ final class AddonBootstrapper
             return;
         }
 
+        if (app()->getProvider($providerClass)) {
+            return;
+        }
+
         app()->register($providerClass);
         self::registerLivewireLocations($providerClass);
     }
