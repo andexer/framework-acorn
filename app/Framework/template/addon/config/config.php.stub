@@ -2,4 +2,7 @@
 
 return [
     'version' => '1.0.0',
+    'file'    => {{slug_snake_upper}}_FILE,
+    'path'    => plugin_dir_path({{slug_snake_upper}}_FILE),
+    'url'     => plugin_dir_url({{slug_snake_upper}}_FILE),
 ];

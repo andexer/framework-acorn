@@ -25,6 +25,8 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+define('{{slug_snake_upper}}_FILE', __FILE__);
+
 if (file_exists($composer = __DIR__ . '/vendor/autoload.php')) {
     require $composer;
 }

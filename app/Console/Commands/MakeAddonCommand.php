@@ -106,6 +106,7 @@ class MakeAddonCommand extends Command
 			'name'        => $name,
 			'slug'        => $slug,
 			'slug_snake'  => str_replace('-', '_', $slug),
+			'slug_snake_upper' => strtoupper(str_replace('-', '_', $slug)),
 			'namespace'   => $namespace,
 			'timestamp'   => now()->format('Y_m_d_His'),
 			'description' => $description,
@@ -257,6 +258,8 @@ class MakeAddonCommand extends Command
 
 		$registerLines = [];
 
+		$registerLines[] = "\t\t\$this->mergeConfigFrom(__DIR__ . '/../../config/{$slug}.php', '{$slug}');";
+
 		if ($this->features['hooks']) {
 			$registerLines[] = "\t\tregister_activation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Activate::class)());";
 			$registerLines[] = "\t\tregister_deactivation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Deactivate::class)());";
@@ -282,6 +285,25 @@ class MakeAddonCommand extends Command
 
 		if ($this->features['lang']) {
 			$bootLines[] = "\t\t\$this->loadTranslationsFrom(__DIR__ . '/../../lang', '{$slug}');";
+		}
+
+		if ($this->features['assets']) {
+			$bootLines[] = "\n\t\t// Assets pipeline (Vite Manifest)";
+			$bootLines[] = "\t\t\$manifest_path = dirname(__DIR__, 2) . '/public/build/manifest.json';";
+			$bootLines[] = "\t\tif (file_exists(\$manifest_path)) {";
+			$bootLines[] = "\t\t\t\$manifest = json_decode(file_get_contents(\$manifest_path), true);";
+			$bootLines[] = "\t\t\t\$css_file = \$manifest['resources/css/app.css']['file'] ?? null;";
+			$bootLines[] = "\t\t\t\$js_file  = \$manifest['resources/js/app.js']['file'] ?? null;";
+			$bootLines[] = "\t\t\t\$base_url = site_url('/wp-content/plugins/{$slug}/public/build/');";
+			$bootLines[] = "\n\t\t\tadd_action('wp_enqueue_scripts', function () use (\$css_file, \$js_file, \$base_url) {";
+			$bootLines[] = "\t\t\t\tif (\$css_file) {";
+			$bootLines[] = "\t\t\t\t\twp_enqueue_style('{$slug}-style', \$base_url . \$css_file, [], null);";
+			$bootLines[] = "\t\t\t\t}";
+			$bootLines[] = "\t\t\t\tif (\$js_file) {";
+			$bootLines[] = "\t\t\t\t\twp_enqueue_script('{$slug}-script', \$base_url . \$js_file, [], null, true);";
+			$bootLines[] = "\t\t\t\t}";
+			$bootLines[] = "\t\t\t});";
+			$bootLines[] = "\t\t}";
 		}
 
 		$registerBody = $registerLines ? "\n" . implode("\n", $registerLines) . "\n\t" : '';
@@ -322,8 +344,8 @@ class MakeAddonCommand extends Command
 	private function replacePlaceholders(string $content, array $vars): string
 	{
 		return str_replace(
-			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{namespace}}', '{{timestamp}}', '{{description}}'],
-			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['namespace'], $vars['timestamp'], $vars['description']],
+			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{slug_snake_upper}}', '{{namespace}}', '{{timestamp}}', '{{description}}'],
+			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['slug_snake_upper'], $vars['namespace'], $vars['timestamp'], $vars['description']],
 			$content
 		);
 	}
