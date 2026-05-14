@@ -10,6 +10,7 @@ class Activate
 	{
 		$this->ensureEnvFile();
 		$this->generateAppKey();
+		$this->ensureStorageDirectories();
 
 		try {
 			Artisan::call('migrate', ['--force' => true]);
@@ -34,5 +35,10 @@ class Activate
 		if (empty(env('APP_KEY'))) {
 			Artisan::call('key:generate', ['--force' => true]);
 		}
+	}
+
+	private function ensureStorageDirectories(): void
+	{
+		Artisan::call('acorn:init', ['path' => ['storage']]);
 	}
 }
