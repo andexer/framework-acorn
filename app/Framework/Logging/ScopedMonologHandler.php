@@ -9,11 +9,13 @@ use Monolog\LogRecord;
 
 final class ScopedMonologHandler extends AbstractProcessingHandler
 {
+	/** @var array<string, string> */
 	private static array $addonPaths = [];
 
-	private readonly string $corePath;
+	/** @var array<string, StreamHandler> */
+	private array $delegates = [];
 
-	private ?StreamHandler $delegate = null;
+	private readonly string $corePath;
 
 	public function __construct(
 		private readonly string $logPath,
@@ -28,15 +30,28 @@ final class ScopedMonologHandler extends AbstractProcessingHandler
 		);
 	}
 
-	public static function registerAddonPath(string $absolutePath): void
+	public static function registerAddonPath(string $absolutePath, ?string $slug = null): void
 	{
 		$key = rtrim(wp_normalize_path($absolutePath), '/');
-		self::$addonPaths[$key] = true;
+		self::$addonPaths[$key] = $slug ?? basename($key);
 	}
 
 	public static function registeredPaths(): array
 	{
 		return array_keys(self::$addonPaths);
+	}
+
+	public static function slugForFile(string $file): ?string
+	{
+		$normalized = rtrim(wp_normalize_path($file), '/');
+
+		foreach (self::$addonPaths as $addonPath => $slug) {
+			if (str_starts_with($normalized, $addonPath)) {
+				return $slug;
+			}
+		}
+
+		return null;
 	}
 
 	protected function write(LogRecord $record): void
@@ -45,12 +60,35 @@ final class ScopedMonologHandler extends AbstractProcessingHandler
 			return;
 		}
 
-		if ($this->delegate === null) {
-			$this->delegate = new StreamHandler($this->logPath, $this->getLevel(), $this->getBubble());
-			$this->delegate->setFormatter($this->getFormatter());
+		$targetPath = $this->resolveLogPath($record);
+
+		$this->delegateFor($targetPath)->handle($record);
+	}
+
+	private function resolveLogPath(LogRecord $record): string
+	{
+		$exception = $record->context['exception'] ?? null;
+
+		if ($exception instanceof \Throwable) {
+			$slug = AddonLogResolver::resolveSlug($exception);
+
+			return AddonLogResolver::logPathForSlug($slug);
 		}
 
-		$this->delegate->handle($record);
+		$slug = $this->resolveSlugFromCallstack();
+
+		return AddonLogResolver::logPathForSlug($slug);
+	}
+
+	private function delegateFor(string $path): StreamHandler
+	{
+		if (! isset($this->delegates[$path])) {
+			$handler = new StreamHandler($path, $this->getLevel(), $this->getBubble());
+			$handler->setFormatter($this->getFormatter());
+			$this->delegates[$path] = $handler;
+		}
+
+		return $this->delegates[$path];
 	}
 
 	private function originatesFromScope(LogRecord $record): bool
@@ -58,10 +96,27 @@ final class ScopedMonologHandler extends AbstractProcessingHandler
 		$exception = $record->context['exception'] ?? null;
 
 		if ($exception instanceof \Throwable) {
-			return $this->fileIsInScope($exception->getFile());
+			return $this->throwableIsInScope($exception);
 		}
 
 		return $this->callstackIsInScope();
+	}
+
+	private function throwableIsInScope(\Throwable $exception): bool
+	{
+		if ($this->fileIsInScope($exception->getFile())) {
+			return true;
+		}
+
+		foreach ($exception->getTrace() as $frame) {
+			$file = $frame['file'] ?? '';
+
+			if (is_string($file) && $file !== '' && $this->fileIsInScope($file)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private function fileIsInScope(string $file): bool
@@ -90,19 +145,32 @@ final class ScopedMonologHandler extends AbstractProcessingHandler
 				continue;
 			}
 
-			$normalized = rtrim(wp_normalize_path($frame['file']), '/');
-
-			if (str_starts_with($normalized, $this->corePath)) {
+			if ($this->fileIsInScope($frame['file'])) {
 				return true;
-			}
-
-			foreach (array_keys(self::$addonPaths) as $addonPath) {
-				if (str_starts_with($normalized, $addonPath)) {
-					return true;
-				}
 			}
 		}
 
 		return false;
+	}
+
+	private function resolveSlugFromCallstack(): ?string
+	{
+		$frames = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 25);
+
+		foreach ($frames as $frame) {
+			$file = $frame['file'] ?? '';
+
+			if (! is_string($file) || $file === '') {
+				continue;
+			}
+
+			$slug = self::slugForFile($file);
+
+			if ($slug !== null) {
+				return $slug;
+			}
+		}
+
+		return AddonLogResolver::CORE_SLUG;
 	}
 }

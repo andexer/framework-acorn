@@ -30,7 +30,7 @@ final class AddonBootstrapper
 		$provider = app()->getProvider($providerClass);
 
 		if ($provider instanceof AddonContract) {
-			ScopedMonologHandler::registerAddonPath($provider->addonPath());
+			ScopedMonologHandler::registerAddonPath($provider->addonPath(), $provider->addonSlug());
 			self::$registeredProviders[$provider->addonSlug()] = $provider->addonPath();
 		}
 

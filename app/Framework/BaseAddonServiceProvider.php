@@ -44,7 +44,7 @@ abstract class BaseAddonServiceProvider extends ServiceProvider implements Addon
 		$path = $this->addonPath();
 		$slug = $this->addonSlug();
 
-		ScopedMonologHandler::registerAddonPath($path);
+		ScopedMonologHandler::registerAddonPath($path, $slug);
 
 		$this->bootViews($path, $slug);
 		$this->bootRoutes($path);
