@@ -56,7 +56,7 @@ class MakeAddonCommand extends Command
 
 		$slug      = Str::slug($name);
 		$namespace = $this->option('namespace') ?: Str::studly($name);
-		
+
 		$description = $this->option('description');
 		if (! $description) {
 			$description = $this->ask('¿Descripción del addon?', "{$name} Addon que depende del Framework Core (plugin).");
@@ -111,7 +111,7 @@ class MakeAddonCommand extends Command
 			'namespace'   => $namespace,
 			'timestamp'   => now()->format('Y_m_d_His'),
 			'description' => $description,
-			'core_logo_url' => get_plugin_uri('public/img/logo.png'),
+			'core_logo_url' => 'https://raw.githubusercontent.com/andexer/framework-acorn/refs/heads/main/public/img/logo.png',
 		];
 
 		if ($this->option('force') && File::exists($addonPath)) {
@@ -222,7 +222,7 @@ class MakeAddonCommand extends Command
 	{
 		$skillsSource = base_path('.agents/skills');
 		$agentsSource = base_path('AGENTS.md');
-		
+
 		$targetDir = "{$basePath}/.agents/skills";
 
 		if (File::exists($skillsSource)) {
