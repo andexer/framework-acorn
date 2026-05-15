@@ -1,7 +1,7 @@
 /node_modules
 /vendor
-/public/*
-!/public/.gitkeep
+# /public/*
+# !/public/.gitkeep
 /storage/
 .env
 composer.lock
