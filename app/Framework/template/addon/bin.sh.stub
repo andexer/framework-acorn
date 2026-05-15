@@ -17,6 +17,7 @@ if (php_sapi_name() !== 'cli' && php_sapi_name() !== 'phpdbg') {
  *   ./{{slug}} <command> [arguments]
  *   ./{{slug}} list
  *   ./{{slug}} make:controller MyController
+ *   ./{{slug}} make:livewire post.create --mfc
  */
 
 $slug = '{{slug}}';
@@ -24,21 +25,39 @@ $slug = '{{slug}}';
 // Extract command and args from argv
 $args = array_slice($argv, 1);
 $command = array_shift($args) ?? 'list';
-$extraArgs = implode(' ', array_map('escapeshellarg', $args));
+
+// Combine all args and options into a single string for --args
+$argsForOption = implode(' ', array_map(function ($arg) {
+    if (str_contains($arg, ' ')) {
+        return '"' . str_replace('"', '\\"', $arg) . '"';
+    }
+    return $arg;
+}, $args));
 
 // Build the wp acorn addon command
-// Detect if running inside DDEV or directly
 $inDdev = !empty(getenv('IS_DDEV_PROJECT')) || file_exists('/etc/ddev-hostname');
 
+$cmdParts = [];
 if ($inDdev) {
-    // Inside DDEV container - call wp directly
-    $wpBin = 'wp';
-    $cmd = trim("{$wpBin} acorn addon {$slug} {$command} {$extraArgs}");
+    $cmdParts[] = 'wp';
 } else {
-    // Outside DDEV - use ddev wp
-    $cmd = trim("ddev wp acorn addon {$slug} {$command} {$extraArgs}");
+    $cmdParts[] = 'ddev';
+    $cmdParts[] = 'wp';
 }
+$cmdParts[] = 'acorn';
+$cmdParts[] = 'addon';
+$cmdParts[] = $slug;
+$cmdParts[] = $command;
+
+if ($argsForOption !== '') {
+    $cmdParts[] = '--args=' . $argsForOption;
+}
+
+// Escape each part and build the command string
+$escapedParts = array_map('escapeshellarg', $cmdParts);
+$cmd = implode(' ', $escapedParts);
 
 // Execute and pass through exit code
 passthru($cmd, $exitCode);
 exit($exitCode);
+

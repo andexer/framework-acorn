@@ -14,7 +14,7 @@ class AddonProxyCommand extends Command
         {slug : Slug del addon}
         {cmd : Comando a ejecutar (ej: make:controller)}
         {args?* : Argumentos posicionales del comando}
-        {--args= : Argumentos adicionales entre comillas}';
+        {--args= : Argumentos y opciones adicionales}';
 
     protected $description = 'Ejecuta comandos de Acorn/Artisan dentro del scope de un addon específico';
 
@@ -22,12 +22,13 @@ class AddonProxyCommand extends Command
     {
         $slug = $this->argument('slug');
         $cmd  = $this->argument('cmd');
-        $argsFromCommand = $this->argument('args');
-        $argsLine = implode(' ', array_map(static fn ($value) => (string) $value, is_array($argsFromCommand) ? $argsFromCommand : []));
-        $extraArgs = trim((string) $this->option('args'));
-        if ($extraArgs !== '') {
-            $argsLine = trim($argsLine . ' ' . $extraArgs);
-        }
+        $argsFromCommand = $this->argument('args') ?? [];
+        
+        // Combine positional args and additional args from --args option
+        $allArgs = array_merge(
+            array_map(fn($val) => (string)$val, $argsFromCommand),
+            $this->parseArgsOption($this->option('args'))
+        );
 
         $addonPath = dirname(base_path()) . '/' . $slug;
 
@@ -68,13 +69,16 @@ class AddonProxyCommand extends Command
             $app->useNamespace($namespace);
         }
         $this->applyAddonLivewireScope($namespace, $addonPath);
-        $this->prepareModelScope($cmd, $argsLine, $namespace, $addonPath);
 
         $this->info("Scope: Addon [{$slug}] (Namespace: {$namespace})");
         $this->line("Comando: {$cmd}");
         $this->newLine();
 
-        $commandLine = trim($cmd . ' ' . $argsLine);
+        // Build command string
+        $commandParts = [$cmd];
+        $commandParts = array_merge($commandParts, $allArgs);
+        $commandLine = implode(' ', $commandParts);
+
         $exitCode = Artisan::call($commandLine, [], $this->output);
         if ($exitCode === self::SUCCESS && $cmd === 'make:livewire') {
             $this->normalizeGeneratedLivewireComponents($addonPath);
@@ -96,6 +100,27 @@ class AddonProxyCommand extends Command
         }
 
         return $exitCode;
+    }
+
+    private function parseArgsOption(?string $argsString): array
+    {
+        $argsString = trim((string)$argsString);
+        if ($argsString === '') {
+            return [];
+        }
+
+        $tokens = preg_split('/\s+(?=(?:[^"]*"[^"]*")*[^"]*$)/', $argsString);
+        if (!is_array($tokens)) {
+            return [];
+        }
+
+        return array_map(function ($token) {
+            // Remove surrounding quotes if present
+            if (str_starts_with($token, '"') && str_ends_with($token, '"')) {
+                return substr($token, 1, -1);
+            }
+            return $token;
+        }, $tokens);
     }
 
     private function applyAddonLivewireScope(string $namespace, string $addonPath): void
@@ -126,62 +151,6 @@ class AddonProxyCommand extends Command
         $finder->addNamespace('pages', viewPath: $resourcesPath . '/views/pages');
 
         app()->instance('livewire.finder', $finder);
-    }
-
-    private function prepareModelScope(string $cmd, string $argsLine, string $namespace, string $addonPath): void
-    {
-        if ($cmd !== 'make:model') {
-            return;
-        }
-
-        File::ensureDirectoryExists($addonPath . '/app/Models');
-
-        $modelArg = $this->extractFirstArgument($argsLine);
-        if ($modelArg === null || str_starts_with($modelArg, '-')) {
-            return;
-        }
-
-        $relativeModelPath = trim(str_replace('\\', '/', $modelArg), '/');
-        if ($relativeModelPath === '') {
-            return;
-        }
-
-        $legacyPath = $addonPath . '/app/' . $relativeModelPath . '.php';
-        $targetPath = $addonPath . '/app/Models/' . $relativeModelPath . '.php';
-
-        if (! File::exists($legacyPath) || File::exists($targetPath)) {
-            return;
-        }
-
-        File::ensureDirectoryExists(dirname($targetPath));
-        File::move($legacyPath, $targetPath);
-
-        $content = File::get($targetPath);
-
-        $segments = explode('/', $relativeModelPath);
-        $className = Str::studly((string) end($segments));
-        $subNamespace = implode('\\', array_map(static fn ($segment) => Str::studly($segment), array_slice($segments, 0, -1)));
-        $modelNamespace = rtrim($namespace, '\\') . '\\Models' . ($subNamespace ? '\\' . $subNamespace : '');
-
-        $content = preg_replace('/^namespace\s+[^;]+;/m', 'namespace ' . $modelNamespace . ';', $content) ?? $content;
-        $content = preg_replace('/class\s+[A-Za-z_][A-Za-z0-9_]*/', 'class ' . $className, $content, 1) ?? $content;
-
-        File::put($targetPath, $content);
-    }
-
-    private function extractFirstArgument(string $argsLine): ?string
-    {
-        $argsLine = trim($argsLine);
-        if ($argsLine === '') {
-            return null;
-        }
-
-        $parts = preg_split('/\s+/', $argsLine);
-        if (! is_array($parts) || $parts === []) {
-            return null;
-        }
-
-        return $parts[0] ?? null;
     }
 
     private function detectNamespace(string $path): string
