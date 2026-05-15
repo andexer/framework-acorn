@@ -9,6 +9,7 @@ use App\Console\Commands\AddonProxyCommand;
 use App\Console\Commands\MakeAddonCommand;
 use App\Framework\AddonResourceServiceProvider;
 use App\Http\Controllers\Admin\AdminPanelController;
+use App\Http\Controllers\Admin\FrameworkSettingsController;
 use App\Http\Controllers\Admin\MapSettingsController;
 use Illuminate\Foundation\Console\RequestMakeCommand;
 use Illuminate\Support\ServiceProvider;
@@ -66,6 +67,7 @@ class FrameworkServiceProvider extends ServiceProvider
 		add_action('rest_api_init', app(RegisterMapRoutesAction::class));
 		app(AdminPanelController::class)->register();
 		app(MapSettingsController::class)->register();
+		app(FrameworkSettingsController::class)->register();
 	}
 
 	private function enqueueFrameworkAssets(): void

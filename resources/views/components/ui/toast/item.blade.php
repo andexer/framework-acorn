@@ -81,9 +81,15 @@
 		</div>
 
 		<div class="flex-1 pt-0.5">
-			<p x-text="
-					toast.content
-				" class="text-sm font-bold leading-tight text-zinc-900 break-words"></p>
+			<template x-if="toast.title">
+				<h4 x-text="toast.title" class="text-sm font-bold leading-tight text-zinc-900 break-words mb-0.5"></h4>
+			</template>
+			<template x-if="toast.description">
+				<p x-text="toast.description" class="text-xs text-zinc-500 leading-normal break-words"></p>
+			</template>
+			<template x-if="!toast.title && !toast.description && toast.content">
+				<p x-text="toast.content" class="text-sm font-bold leading-tight text-zinc-900 break-words"></p>
+			</template>
 		</div>
 
 		<div class="shrink-0">

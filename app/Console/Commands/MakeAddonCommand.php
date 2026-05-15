@@ -111,6 +111,7 @@ class MakeAddonCommand extends Command
 			'namespace'   => $namespace,
 			'timestamp'   => now()->format('Y_m_d_His'),
 			'description' => $description,
+			'core_logo_url' => get_plugin_uri('public/img/logo.png'),
 		];
 
 		if ($this->option('force') && File::exists($addonPath)) {
@@ -277,8 +278,8 @@ class MakeAddonCommand extends Command
 	private function replacePlaceholders(string $content, array $vars): string
 	{
 		return str_replace(
-			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{slug_snake_upper}}', '{{namespace}}', '{{timestamp}}', '{{description}}'],
-			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['slug_snake_upper'], $vars['namespace'], $vars['timestamp'], $vars['description']],
+			['{{name}}', '{{slug}}', '{{slug_snake}}', '{{slug_snake_upper}}', '{{namespace}}', '{{timestamp}}', '{{description}}', '{{core_logo_url}}'],
+			[$vars['name'], $vars['slug'], $vars['slug_snake'], $vars['slug_snake_upper'], $vars['namespace'], $vars['timestamp'], $vars['description'], $vars['core_logo_url']],
 			$content
 		);
 	}

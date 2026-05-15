@@ -39,7 +39,7 @@ return [
     |
     */
 
-	'debug' => true,
+	'debug' => (bool) get_option('framework_debug', true),
 
 	/*
     |--------------------------------------------------------------------------

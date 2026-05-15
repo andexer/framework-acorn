@@ -12,12 +12,14 @@ export function registerToastStore() {
 		pausedIds: new Set(),
 
 		add(details) {
-			if (!details?.content) return;
+			if (!details?.content && !details?.title) return;
 			this.items.unshift({
 				id: Date.now() + Math.random(),
 				type: details.type || 'info',
-				content: details.content,
-				duration: details.duration ?? 4000,
+				title: details.title || null,
+				description: details.description || null,
+				content: details.content || details.description || null,
+				duration: details.duration ?? 5000,
 				showProgress: details.showProgress !== false,
 			});
 			if (this.items.length > this.maxToasts) {

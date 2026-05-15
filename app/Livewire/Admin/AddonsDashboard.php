@@ -57,7 +57,7 @@ class AddonsDashboard extends Component
 
 			// Imagen por defecto si no hay nada
 			if (empty($imageUrl)) {
-				$imageUrl = get_plugin_uri('public/images/addon-placeholder.svg'); // Si no existe, podemos usar un color o inicial
+				$imageUrl = get_plugin_uri('public/img/logo.png');
 			}
 
 			$addons[] = [
