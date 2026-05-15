@@ -28,59 +28,132 @@ if (! defined('ABSPATH')) {
 define('{{slug_snake_upper}}_FILE', __FILE__);
 
 if (file_exists($composer = __DIR__ . '/vendor/autoload.php')) {
-    require $composer;
+	require $composer;
 }
 
-if (! function_exists('is_plugin_active')) {
-    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+use {{namespace}}\Http\Controllers\Hook\Activate;
+use {{namespace}}\Http\Controllers\Hook\Deactivate;
+
+/**
+ * Inicio del Addon.
+ * 
+ * Esta clase se encarga de gestionar el ciclo de vida del addon y su
+ * correcta integración con el Framework Core.
+ */
+final class {{namespace}}Addon
+{
+	/**
+	 * Candidatos a ser el plugin Core.
+	 */
+	private const CORE_CANDIDATES = [
+		'framework-acorn/framework-acorn.php',
+		'framework/framework.php',
+	];
+
+	/**
+	 * Ejecuta la instancia del plugin.
+	 */
+	public function run(): void
+	{
+		$this->lifecycle_hooks();
+		$this->boot_addon();
+	}
+
+	/**
+	 * Registra los hooks de activación y desactivación.
+	 */
+	private function lifecycle_hooks(): void
+	{
+		register_activation_hook(__FILE__, static fn () => (new self())->activate());
+		register_deactivation_hook(__FILE__, static fn () => (new self())->deactivate());
+	}
+
+	/**
+	 * Lógica de inicialización del plugin.
+	 */
+	private function boot_addon(): void
+	{
+		add_action('admin_notices', fn () => $this->missing_core_notice());
+
+		add_action('plugins_loaded', function (): void {
+			if (! $this->has_core()) {
+				return;
+			}
+
+			\App\Framework\AddonBootstrapper::register(
+				\{{namespace}}\Providers\AddonServiceProvider::class
+			);
+		}, 20);
+	}
+
+	/**
+	 * Acciones a ejecutar al activar el plugin.
+	 */
+	private function activate(): void
+	{
+		if (! $this->has_core()) {
+			deactivate_plugins(plugin_basename(__FILE__));
+			set_transient($this->notice_key(), 1, 30);
+			return;
+		}
+
+		if (class_exists(Activate::class)) {
+			app(Activate::class)();
+		}
+	}
+
+	/**
+	 * Acciones a ejecutar al desactivar el plugin.
+	 */
+	private function deactivate(): void
+	{
+		if (class_exists(Deactivate::class)) {
+			app(Deactivate::class)();
+		}
+	}
+
+	/**
+	 * Verifica si el Framework Core está presente y activo.
+	 */
+	private function has_core(): bool
+	{
+		if (! function_exists('is_plugin_active')) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		foreach (self::CORE_CANDIDATES as $slug) {
+			if (is_plugin_active($slug)) {
+				return true;
+			}
+		}
+
+		return defined('FRAMEWORK_PLUGIN_BASENAME') && is_plugin_active(FRAMEWORK_PLUGIN_BASENAME);
+	}
+
+	/**
+	 * Muestra un aviso en el admin si falta el Core.
+	 */
+	private function missing_core_notice(): void
+	{
+		if (! get_transient($this->notice_key())) {
+			return;
+		}
+
+		delete_transient($this->notice_key());
+
+		wp_admin_notice(
+			'Este addon requiere que el plugin Framework esté activo para funcionar.',
+			['type' => 'error', 'dismissible' => true]
+		);
+	}
+
+	/**
+	 * Genera una clave única para los avisos del plugin.
+	 */
+	private function notice_key(): string
+	{
+		return 'framework_addon_missing_core_' . md5(__FILE__);
+	}
 }
 
-register_activation_hook(__FILE__, static function (): void {
-    $coreCandidates = [
-        'framework-acorn/framework-acorn.php',
-        'framework/framework.php',
-    ];
-
-    foreach ($coreCandidates as $corePlugin) {
-        if (is_plugin_active($corePlugin)) {
-            return;
-        }
-    }
-
-    if (defined('FRAMEWORK_PLUGIN_BASENAME') && is_plugin_active(FRAMEWORK_PLUGIN_BASENAME)) {
-        return;
-    }
-
-    deactivate_plugins(plugin_basename(__FILE__));
-    set_transient('framework_addon_missing_core_' . md5(__FILE__), 1, 30);
-});
-
-add_action('admin_notices', static function (): void {
-    $key = 'framework_addon_missing_core_' . md5(__FILE__);
-    if (! get_transient($key)) {
-        return;
-    }
-
-    delete_transient($key);
-    wp_admin_notice(
-        'Este addon requiere que el plugin Framework esté activo.',
-        [
-            'type' => 'error',
-            'dismissible' => true,
-        ]
-    );
-});
-
-if (
-    ! is_plugin_active('framework-acorn/framework-acorn.php')
-    && ! is_plugin_active('framework/framework.php')
-    && (! defined('FRAMEWORK_PLUGIN_BASENAME') || ! is_plugin_active(FRAMEWORK_PLUGIN_BASENAME))
-) {
-    return;
-}
-
-add_action('plugins_loaded', function () {
-    \App\Framework\AddonBootstrapper::register(
-        \{{namespace}}\Providers\AddonServiceProvider::class
-    );
-}, 20);
+(new {{namespace}}Addon())->run();

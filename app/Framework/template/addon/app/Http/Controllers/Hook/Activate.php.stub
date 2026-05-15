@@ -11,6 +11,7 @@ class Activate
 		try {
 			Artisan::call('migrate', ['--force' => true]);
 		} catch (\Exception $e) {
+			logger('Error al migrar: en plugin {{namespace}} ' . $e->getMessage());
 		}
 	}
 }

@@ -3,6 +3,7 @@
 namespace {{namespace}}\Providers;
 
 use App\Framework\BaseAddonServiceProvider;
+use {{namespace}}\Http\Controllers\Home\HomeController;
 
 class AddonServiceProvider extends BaseAddonServiceProvider
 {
@@ -16,5 +17,7 @@ class AddonServiceProvider extends BaseAddonServiceProvider
 	public function boot(): void
 	{
 		parent::boot();
+
+		app(HomeController::class);
 	}
 }

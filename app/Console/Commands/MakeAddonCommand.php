@@ -17,6 +17,7 @@ class MakeAddonCommand extends Command
 		'config/config.php.stub'                 => 'config/{{slug}}.php',
 		'resources/views/welcome.blade.php.stub' => 'resources/views/welcome.blade.php',
 		'app/Http/Controllers/Home/HomeController.php.stub' => 'app/Http/Controllers/Home/HomeController.php',
+		'app/Providers/AddonServiceProvider.php.stub'            => 'app/Providers/AddonServiceProvider.php',
 		'.gitignore.stub'                        => '.gitignore',
 		'.env.example.stub'                      => '.env.example',
 	];
@@ -119,7 +120,6 @@ class MakeAddonCommand extends Command
 		$this->createDirectories($addonPath);
 		$this->publishStaticStubs($addonPath, $vars);
 		$this->publishConditionalStubs($addonPath, $vars);
-		$this->writeAddonServiceProvider($addonPath, $vars);
 		$this->writeBinary($addonPath, $vars);
 
 		$this->newLine();
@@ -247,36 +247,7 @@ class MakeAddonCommand extends Command
 		$this->line("  <fg=green>created</> {$vars['slug']} <fg=gray>(binary +x)</>");
 	}
 
-	private function writeAddonServiceProvider(string $basePath, array $vars): void
-	{
-		$ns   = $vars['namespace'];
-		$slug = $vars['slug'];
 
-		$hookLines = [];
-
-		if ($this->features['hooks']) {
-			$hookLines[] = "\t\tregister_activation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Activate::class)());";
-			$hookLines[] = "\t\tregister_deactivation_hook(dirname(__DIR__, 2) . '/{$slug}.php', fn() => app(\\{$ns}\\Http\\Controllers\\Hook\\Deactivate::class)());";
-		}
-
-		$registerBody = "\n\t\tparent::register();\n\t\t\$this->mergeConfigFrom(__DIR__ . '/../../config/{$slug}.php', '{$slug}');\n";
-
-		if ($hookLines) {
-			$registerBody .= implode("\n", $hookLines) . "\n";
-		}
-
-		$registerBody .= "\t";
-
-		$bootLines = ["\t\tparent::boot();"];
-		$bootLines[] = "\n\t\tapp(\\{$ns}\\Http\\Controllers\\Home\\HomeController::class);";
-
-		$bootBody = implode("\n", $bootLines);
-
-		$content = "<?php\n\nnamespace {$ns}\\Providers;\n\nuse App\\Framework\\BaseAddonServiceProvider;\n\nclass AddonServiceProvider extends BaseAddonServiceProvider\n{\n\tpublic function register(): void\n\t{{$registerBody}}\n\n\tpublic function boot(): void\n\t{\n{$bootBody}\n\t}\n}\n";
-
-		File::put("{$basePath}/app/Providers/AddonServiceProvider.php", $content);
-		$this->line('  <fg=green>created</> app/Providers/AddonServiceProvider.php');
-	}
 	private function publishStub(string $stubsPath, string $stub, string $basePath, string $target, array $vars): void
 	{
 		$stubFile = "{$stubsPath}/{$stub}";
