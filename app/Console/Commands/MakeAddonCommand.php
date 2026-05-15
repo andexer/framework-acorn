@@ -137,7 +137,7 @@ class MakeAddonCommand extends Command
 		}
 		$this->line("  {$step}. Activa el plugin en WordPress.");
 		$step++;
-		$this->line("  {$step}. Usa <comment>acorn-addon {$slug} list</comment> o <comment>wp acorn addon {$slug} list</comment>.");
+		$this->line("  {$step}. Usa <comment>x list (!Si está instalado en el path del sistema x.sh)  {$slug} list</comment> o <comment>wp acorn addon {$slug} list</comment>.");
 
 		return self::SUCCESS;
 	}
