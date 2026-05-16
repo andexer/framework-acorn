@@ -19,6 +19,8 @@ export interface FileImageEditorProps {
 	
 	quality?: number;
 
+	variant?: 'default' | 'avatar';
+	cropShape?: 'rect' | 'round';
 	accept?: string;
 }
 

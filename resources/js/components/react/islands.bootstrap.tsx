@@ -160,6 +160,8 @@ function mountImageEditor(container: HTMLElement) {
 				maxSizeMB={parseNumber(container.dataset.maxSizeMb, 1)}
 				quality={parseNumber(container.dataset.quality, 0.92)}
 				accept={container.dataset.accept}
+				variant={container.dataset.variant as any}
+				cropShape={container.dataset.cropShape as any}
 			/>
 		</React.StrictMode>,
 	);

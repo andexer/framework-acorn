@@ -23,6 +23,8 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 	maxSizeMB = 1,
 	quality = 0.92,
 	accept = 'image/jpeg,image/png,image/webp,image/gif',
+	variant = 'default',
+	cropShape,
 }) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -106,29 +108,58 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 	}, [imageSrc, croppedAreaPixels, maxSizeMB, quality, wireId]);
 
 	const currentDisplayUrl = result?.base64 || initialUrl;
+	const isAvatar = variant === 'avatar';
+	const effectiveCropShape = cropShape || (isAvatar ? 'round' : 'rect');
 
 	return (
 		<div className="flex items-center gap-5 w-full">
-			{}
-			<div 
-				className="relative shrink-0 size-24 sm:size-28 rounded-2xl bg-zinc-50 border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand-400 group transition-colors shadow-sm"
-				onClick={() => fileInputRef.current?.click()}
-			>
-				{currentDisplayUrl ? (
-					<>
-						<img src={currentDisplayUrl} className="w-full h-full object-cover" alt="Preview" />
-						<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-							<svg className="size-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-								<path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-							</svg>
+			{isAvatar ? (
+				<div 
+					className="relative p-[3px] rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 shadow-md"
+					onClick={() => fileInputRef.current?.click()}
+				>
+					<div className="size-24 sm:size-28 rounded-full bg-white p-[3px]">
+						<div className="relative w-full h-full rounded-full bg-zinc-50 overflow-hidden group">
+							{currentDisplayUrl ? (
+								<>
+									<img src={currentDisplayUrl} className="w-full h-full object-cover" alt="Preview" />
+									<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+										<svg className="size-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+											<path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+										</svg>
+									</div>
+								</>
+							) : (
+								<div className="w-full h-full flex items-center justify-center text-zinc-300 group-hover:text-brand-500 transition-colors">
+									<svg className="size-10" viewBox="0 0 24 24" fill="currentColor">
+										<path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+									</svg>
+								</div>
+							)}
 						</div>
-					</>
-				) : (
-					<svg className="size-8 text-zinc-300 group-hover:text-brand-500 transition-colors" viewBox="0 0 24 24" fill="currentColor">
-						<path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
-					</svg>
-				)}
-			</div>
+					</div>
+				</div>
+			) : (
+				<div 
+					className="relative shrink-0 size-24 sm:size-28 rounded-2xl bg-zinc-50 border-2 border-dashed border-zinc-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand-400 group transition-colors shadow-sm"
+					onClick={() => fileInputRef.current?.click()}
+				>
+					{currentDisplayUrl ? (
+						<>
+							<img src={currentDisplayUrl} className="w-full h-full object-cover" alt="Preview" />
+							<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+								<svg className="size-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+									<path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+								</svg>
+							</div>
+						</>
+					) : (
+						<svg className="size-8 text-zinc-300 group-hover:text-brand-500 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+							<path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
+						</svg>
+					)}
+				</div>
+			)}
 
 			<div className="flex flex-col gap-1.5">
 				<button 
@@ -167,6 +198,7 @@ export const FileImageEditor: React.FC<FileImageEditorProps> = ({
 							<CropEditor
 								imageSrc={imageSrc}
 								aspectRatio={aspectRatio}
+								cropShape={effectiveCropShape}
 								onCropComplete={handleCropComplete}
 								onCancel={() => setIsModalOpen(false)}
 								onConfirm={handleCropConfirm}

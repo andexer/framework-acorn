@@ -12,7 +12,7 @@
     "src": "node_modules/leaflet/dist/images/marker-icon.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-BE8emN_5.css",
+    "file": "assets/app-DwbpX1A-.css",
     "name": "app",
     "names": [
       "app.css"
@@ -27,7 +27,7 @@
     "isEntry": true
   },
   "resources/js/components/react/islands.bootstrap.tsx": {
-    "file": "assets/islands.bootstrap-CzOVwvqv.js",
+    "file": "assets/islands.bootstrap-CgQhPrV4.js",
     "name": "islands.bootstrap",
     "src": "resources/js/components/react/islands.bootstrap.tsx",
     "isEntry": true,

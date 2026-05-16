@@ -15,6 +15,7 @@ interface CropEditorProps {
 	imageSrc: string;
 	aspectRatio?: number;
 	availableRatios?: AspectRatioOption[];
+	cropShape?: 'rect' | 'round';
 	onCropComplete: (croppedArea: Area, croppedAreaPixels: CroppedAreaPixels) => void;
 	onCancel: () => void;
 	onConfirm: () => void;
@@ -23,6 +24,7 @@ interface CropEditorProps {
 export const CropEditor: React.FC<CropEditorProps> = ({
 	imageSrc,
 	aspectRatio: initialAspectRatio = 1,
+	cropShape = 'rect',
 	availableRatios = [
 		{ label: '1:1', value: 1 },
 		{ label: '4:3', value: 4 / 3 },
@@ -73,6 +75,7 @@ export const CropEditor: React.FC<CropEditorProps> = ({
 					zoom={zoom}
 					rotation={rotation}
 					aspect={aspect ?? undefined}
+					cropShape={cropShape}
 					onCropChange={setCrop}
 					onZoomChange={setZoom}
 					onCropComplete={handleCropComplete}
