@@ -34,9 +34,9 @@ new class extends Component
 
 	public int $altura_mapa = 460;
 
-	public function mount($latitud = null, $longitud = null, ?int $altura = null, ?string $punto_referencia = ''): void
+	public function mount($latitud = null, $longitud = null, ?int $altura = null, ?string $punto_referencia = '', ?string $puntoReferencia = ''): void
 	{
-		$this->punto_referencia = $punto_referencia;
+		$this->punto_referencia = $punto_referencia ?: ($puntoReferencia ?: '');
 
 		if ($altura !== null && $altura >= 320) {
 			$this->altura_mapa = $altura;
