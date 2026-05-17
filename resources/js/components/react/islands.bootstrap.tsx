@@ -77,7 +77,17 @@ function renderMapaMount(state: MapaMountState, componentId: string) {
 
 function mountMapaPicker(container: HTMLElement) {
 	const componentId = getWireComponentId(container);
-	if (componentId === '' || mapaMounts.has(componentId)) return;
+	if (componentId === '') return;
+
+	if (mapaMounts.has(componentId)) {
+		const state = mapaMounts.get(componentId)!;
+		if (state.container === container) return;
+		try {
+			state.root.unmount();
+		} catch (e) {
+			// Silence unmount errors
+		}
+	}
 
 	const state: MapaMountState = {
 		container,

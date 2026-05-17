@@ -84,17 +84,33 @@ function AutoResizeMap() {
 	const map = useMap();
 
 	useEffect(() => {
+		const container = map.getContainer();
+		if (!container) return;
+
+		// Initial invalidate
 		map.invalidateSize();
 
+		// Set up ResizeObserver to automatically handle tab/accordion toggles, window resizes, or Livewire DOM updates
+		const resizeObserver = new ResizeObserver(() => {
+			try {
+				map.invalidateSize();
+			} catch (e) {
+				// Prevent errors if map is unmounted
+			}
+		});
+
+		resizeObserver.observe(container);
+
+		// Fallback timers to be 100% sure during dynamic animations/transitions
 		const timers = [
 			setTimeout(() => map.invalidateSize(), 50),
-			setTimeout(() => map.invalidateSize(), 150),
-			setTimeout(() => map.invalidateSize(), 300),
-			setTimeout(() => map.invalidateSize(), 600),
+			setTimeout(() => map.invalidateSize(), 200),
+			setTimeout(() => map.invalidateSize(), 500),
 			setTimeout(() => map.invalidateSize(), 1000),
 		];
 
 		return () => {
+			resizeObserver.disconnect();
 			timers.forEach(clearTimeout);
 		};
 	}, [map]);
