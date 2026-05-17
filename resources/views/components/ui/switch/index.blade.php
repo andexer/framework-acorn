@@ -45,7 +45,7 @@
 	$wrapperClasses = ['w-fit', $maxWidth];
 
 	$containerClasses = [
-		'flex items-center gap-x-2',
+		'flex items-center! gap-x-2!',
 		match ($align) {
 			'left' => 'flex-row',
 			default => 'flex-row-reverse',
@@ -53,13 +53,13 @@
 	];
 
 	$switchClasses = [
-		'relative inline-flex flex-shrink-0! shrink-0! cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+		'relative inline-flex items-center! justify-start! box-border! flex-shrink-0! shrink-0! cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
 		$sizeConfig['switch'],
 		$switchClass,
 	];
 
 	$thumbClasses = [
-		'pointer-events-none inline-flex flex-shrink-0! shrink-0! items-center justify-center transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
+		'pointer-events-none inline-flex items-center justify-center box-border! flex-shrink-0! shrink-0! transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
 		$sizeConfig['thumb'],
 		$thumbClass,
 	];
@@ -73,12 +73,12 @@
 >
 	<div class="">
 		<div class="{{ Arr::toCssClasses($containerClasses) }}">
-			<div class="flex-shrink-0 flex items-center">
+			<div class="flex-shrink-0 flex items-center!">
 				<button
 					type="button"
 					class="{{ Arr::toCssClasses($switchClasses) }}"
-					x-bind:class="_checked ? '[:where(&)]:bg-neutral-800 [:where(&)]: {{ $onClass }}' :
-						'{{ $offClass }} [:where(&)]:bg-neutral-300 [:where(&)]:'"
+					x-bind:class="_checked ? 'bg-orange-600! {{ $onClass }}' :
+						'{{ $offClass }} bg-neutral-200!'"
 					x-on:click="_checked = !_checked"
 					@disabled ($disabled)
 					x-bind:aria-_checked="_checked"
@@ -87,8 +87,8 @@
 				>
 					<span
 						x-bind:class="_checked ?
-							'{{ $sizeConfig['activeTranslate'] }} {{ $thumbOnClass }} [:where(&)]:bg-white [:where(&)]:' :
-							'translate-x-[0.05rem] [:where(&)]:bg-white {{ $thumbOffClass }}'"
+							'{{ $sizeConfig['activeTranslate'] }} {{ $thumbOnClass }} bg-white!' :
+							'translate-x-0! bg-white! {{ $thumbOffClass }}'"
 						class="{{ Arr::toCssClasses($thumbClasses) }}"
 					>
 						@if ($iconOn)
@@ -121,7 +121,7 @@
 
 			<label
 				id="{{ $id }}-label"
-				class="block text-start flex-1 text-sm font-medium text-black cursor-pointer select-none"
+				class="block text-start flex-1 text-sm font-medium text-black cursor-pointer select-none leading-none! self-center!"
 				@if (!$disabled) x-on:click="_checked = !_checked" @endif
 			>
 				{{ $label }}
