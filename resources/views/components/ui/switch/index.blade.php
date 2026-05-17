@@ -22,23 +22,23 @@
 
 	$sizeConfig = match ($size) {
 		'sm' => [
-			'switch' => 'h-4 w-7',
-			'thumb' => 'size-3',
-			'activeTranslate' => 'translate-x-3',
-			'iconSize' => 'size-2.5',
+			'switch' => 'h-4! w-7! min-h-4! min-w-7! max-h-4! max-w-7! flex-shrink-0! shrink-0!',
+			'thumb' => 'h-3! w-3! min-h-3! min-w-3! max-h-3! max-w-3! flex-shrink-0! shrink-0!',
+			'activeTranslate' => 'translate-x-3!',
+			'iconSize' => 'size-2.5!',
 		],
 		'lg' => [
-			'switch' => 'h-8 w-14',
-			'thumb' => 'size-7',
-			'activeTranslate' => 'translate-x-6',
-			'iconSize' => 'size-6',
+			'switch' => 'h-8! w-14! min-h-8! min-w-14! max-h-8! max-w-14! flex-shrink-0! shrink-0!',
+			'thumb' => 'h-7! w-7! min-h-7! min-w-7! max-h-7! max-w-7! flex-shrink-0! shrink-0!',
+			'activeTranslate' => 'translate-x-6!',
+			'iconSize' => 'size-6!',
 		],
 
 		default => [
-			'switch' => 'h-6 w-11',
-			'thumb' => 'size-5',
-			'activeTranslate' => 'translate-x-5',
-			'iconSize' => 'size-3',
+			'switch' => 'h-6! w-11! min-h-6! min-w-11! max-h-6! max-w-11! flex-shrink-0! shrink-0!',
+			'thumb' => 'h-5! w-5! min-h-5! min-w-5! max-h-5! max-w-5! flex-shrink-0! shrink-0!',
+			'activeTranslate' => 'translate-x-5!',
+			'iconSize' => 'size-3!',
 		],
 	};
 
@@ -53,13 +53,13 @@
 	];
 
 	$switchClasses = [
-		'relative inline-flex flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+		'relative inline-flex flex-shrink-0! shrink-0! cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
 		$sizeConfig['switch'],
 		$switchClass,
 	];
 
 	$thumbClasses = [
-		'pointer-events-none inline-flex items-center justify-center transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
+		'pointer-events-none inline-flex flex-shrink-0! shrink-0! items-center justify-center transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
 		$sizeConfig['thumb'],
 		$thumbClass,
 	];
