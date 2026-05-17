@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { LatLngBoundsExpression } from 'leaflet';
@@ -24,7 +24,7 @@ const VENEZUELA_BOUNDS = {
 	maxLng: -59.6,
 };
 
-const DEFAULT_CENTER: [number, number] = [8.5, -66.5];
+const DEFAULT_CENTER: [number, number] = [10.480600, -66.903600];
 
 const MAP_BOUNDS: LatLngBoundsExpression = [
 	[VENEZUELA_BOUNDS.minLat, VENEZUELA_BOUNDS.minLng],
@@ -80,11 +80,57 @@ function ClickHandler({
 	return null;
 }
 
-function FlyToPoint({ point }: { point: Point }) {
+function AutoResizeMap() {
 	const map = useMap();
 
 	useEffect(() => {
-		map.flyTo([point.lat, point.lng], Math.max(map.getZoom(), 9), { animate: true, duration: 0.8 });
+		map.invalidateSize();
+
+		const timers = [
+			setTimeout(() => map.invalidateSize(), 50),
+			setTimeout(() => map.invalidateSize(), 150),
+			setTimeout(() => map.invalidateSize(), 300),
+			setTimeout(() => map.invalidateSize(), 600),
+			setTimeout(() => map.invalidateSize(), 1000),
+		];
+
+		return () => {
+			timers.forEach(clearTimeout);
+		};
+	}, [map]);
+
+	return null;
+}
+
+function FlyToPoint({ point }: { point: Point }) {
+	const map = useMap();
+	const isFirstRender = useRef(true);
+
+	useEffect(() => {
+		if (isFirstRender.current) {
+			isFirstRender.current = false;
+			return;
+		}
+
+		if (!point || !Number.isFinite(point.lat) || !Number.isFinite(point.lng)) {
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			try {
+				const currentZoom = map.getZoom();
+				const zoom = typeof currentZoom === 'number' && Number.isFinite(currentZoom) ? Math.max(currentZoom, 9) : 15;
+
+				const center = map.getCenter();
+				if (center && Number.isFinite(center.lat) && Number.isFinite(center.lng)) {
+					map.flyTo([point.lat, point.lng], zoom, { animate: true, duration: 0.8 });
+				}
+			} catch (error) {
+				console.warn('[FlyToPoint] map.flyTo skipped or failed:', error);
+			}
+		}, 100);
+
+		return () => clearTimeout(timer);
 	}, [map, point.lat, point.lng]);
 
 	return null;
@@ -140,7 +186,12 @@ function FullscreenControl() {
 }
 
 export function MapaDireccionesPicker({ lat, lng, height = 460, onPick, onOutside }: PickerProps) {
-	const [point, setPoint] = useState<Point>({ lat, lng });
+	const validLat = typeof lat === 'number' && Number.isFinite(lat) ? lat : Number(lat);
+	const validLng = typeof lng === 'number' && Number.isFinite(lng) ? lng : Number(lng);
+
+	const initialLat = Number.isFinite(validLat) && insideVenezuela(validLat, validLng) ? validLat : DEFAULT_CENTER[0];
+	const initialLng = Number.isFinite(validLng) && insideVenezuela(validLat, validLng) ? validLng : DEFAULT_CENTER[1];
+	const [point, setPoint] = useState<Point>({ lat: initialLat, lng: initialLng });
 
 	const showOutsideToast = () => {
 		window.dispatchEvent(new CustomEvent('notify', {
@@ -153,17 +204,17 @@ export function MapaDireccionesPicker({ lat, lng, height = 460, onPick, onOutsid
 	};
 
 	const center = useMemo<[number, number]>(() => {
-		if (insideVenezuela(lat, lng)) {
-			return [lat, lng];
+		if (Number.isFinite(validLat) && Number.isFinite(validLng) && insideVenezuela(validLat, validLng)) {
+			return [validLat, validLng];
 		}
 		return DEFAULT_CENTER;
-	}, [lat, lng]);
+	}, [validLat, validLng]);
 
 	useEffect(() => {
-		if (insideVenezuela(lat, lng)) {
-			setPoint({ lat, lng });
+		if (Number.isFinite(validLat) && Number.isFinite(validLng) && insideVenezuela(validLat, validLng)) {
+			setPoint({ lat: validLat, lng: validLng });
 		}
-	}, [lat, lng]);
+	}, [validLat, validLng]);
 
 	const handleSearchSelect = (newLat: number, newLng: number, isVenezuela: boolean) => {
 		if (!isVenezuela || !insideVenezuela(newLat, newLng)) {
@@ -195,6 +246,7 @@ export function MapaDireccionesPicker({ lat, lng, height = 460, onPick, onOutsid
 						attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 						maxZoom={19}
 					/>
+					<AutoResizeMap />
 
 					<FullscreenControl />
 					<FlyToPoint point={point} />

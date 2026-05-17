@@ -17,8 +17,9 @@ import { FileDocumentEditor }    from './file-document/FileDocumentEditor';
 
 // ─── Helpers comunes ──────────────────────────────────────────────────────────
 function parseNumber(value: string | undefined, fallback: number): number {
+	if (!value || value === 'NaN' || value === 'null' || value === 'undefined') return fallback;
 	const parsed = Number(value);
-	return Number.isFinite(parsed) ? parsed : fallback;
+	return Number.isFinite(parsed) && parsed !== 0 ? parsed : fallback;
 }
 
 function parseOptionalNumber(value: string | undefined, fallback: number | undefined): number | undefined {
@@ -81,8 +82,8 @@ function mountMapaPicker(container: HTMLElement) {
 	const state: MapaMountState = {
 		container,
 		root: createRoot(container),
-		lat: parseNumber(container.dataset.lat, 8.5),
-		lng: parseNumber(container.dataset.lng, -66.5),
+		lat: parseNumber(container.dataset.lat, 10.480600),
+		lng: parseNumber(container.dataset.lng, -66.903600),
 		height: parseNumber(container.dataset.height, 460),
 	};
 

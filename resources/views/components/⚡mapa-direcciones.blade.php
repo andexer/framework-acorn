@@ -17,13 +17,13 @@ new class extends Component
 
 	public string $codigo_postal = '';
 
-	public string $latitud = '10.480600';
+	public string $latitud = '';
 
-	public string $longitud = '-66.903600';
+	public string $longitud = '';
 
-	public string $latitud_valida = '10.480600';
+	public string $latitud_valida = '';
 
-	public string $longitud_valida = '-66.903600';
+	public string $longitud_valida = '';
 
 	public string $direccion_completa = '';
 
@@ -34,25 +34,35 @@ new class extends Component
 
 	public int $altura_mapa = 460;
 
-	public function mount(?float $latitud = null, ?float $longitud = null, ?int $altura = null, ?string $punto_referencia = ''): void
+	public function mount($latitud = null, $longitud = null, ?int $altura = null, ?string $punto_referencia = ''): void
 	{
 		$this->punto_referencia = $punto_referencia;
-		if ($latitud !== null && $longitud !== null) {
-			$this->latitud = number_format((float) $latitud, 6, '.', '');
-			$this->longitud = number_format((float) $longitud, 6, '.', '');
-		}
 
 		if ($altura !== null && $altura >= 320) {
 			$this->altura_mapa = $altura;
 		}
 
-		$this->latitud_valida = number_format((float) $this->latitud, 6, '.', '');
-		$this->longitud_valida = number_format((float) $this->longitud, 6, '.', '');
-		$this->latitud = $this->latitud_valida;
-		$this->longitud = $this->longitud_valida;
-
-		$this->enqueueMapaDireccionesAssets();
-		$this->setCoordinates((float) $this->latitud, (float) $this->longitud);
+		if ($latitud !== null && $longitud !== null && $latitud !== '' && $longitud !== '') {
+			$this->latitud = number_format((float) $latitud, 6, '.', '');
+			$this->longitud = number_format((float) $longitud, 6, '.', '');
+			$this->latitud_valida = $this->latitud;
+			$this->longitud_valida = $this->longitud;
+			$this->enqueueMapaDireccionesAssets();
+			$this->setCoordinates((float) $this->latitud, (float) $this->longitud);
+		} else {
+			$this->latitud = '';
+			$this->longitud = '';
+			$this->latitud_valida = '10.480600';
+			$this->longitud_valida = '-66.903600';
+			$this->enqueueMapaDireccionesAssets();
+			// Keep all address fields empty
+			$this->estado = '';
+			$this->ciudad = '';
+			$this->municipio = '';
+			$this->parroquia = '';
+			$this->codigo_postal = '';
+			$this->direccion_completa = '';
+		}
 	}
 
 	public function setCoordinates(float $lat, float $lng): void
@@ -88,6 +98,11 @@ new class extends Component
 		$this->longitud = $this->longitud_valida;
 		
 		$this->dispatchSyncEvent($lat, $lng);
+	}
+
+	public function updatedPuntoReferencia(string $value): void
+	{
+		$this->dispatch('framework-mapa-punto-referencia-sync', value: $value);
 	}
 
 	public function updatedLatitud(): void
