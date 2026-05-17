@@ -186,23 +186,7 @@ new class extends Component
 
 <div class="w-full">
 	<div>
-		{{-- Header --}}
-		<div class="px-8 py-6 border-b border-orange-50 bg-white flex items-center justify-between">
-			<div class="flex items-center gap-4">
-				<div class="size-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-200">
-					<svg class="size-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-						<path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-						<path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-					</svg>
-				</div>
-				<div>
-					<h2 class="text-xl font-black text-zinc-900 tracking-tight leading-tight">{{ __('Ubicación y Dirección', 'framework') }}</h2>
-					<p class="text-sm font-bold text-zinc-500">{{ __('Información de tu ubicación', 'framework') }}</p>
-				</div>
-			</div>
-		</div>
-
-		<div class="p-8 space-y-8">
+		<div class="space-y-6">
 			{{-- Map Area (Includes Search) --}}
 			<div wire:ignore>
 				<div
