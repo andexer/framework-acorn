@@ -75,7 +75,7 @@ new class extends Component
 			duration: 3000
 		);
 
-		$this->dispatch('file-document-updated', base64: $base64, name: $name);
+		$this->dispatch('file-document-updated', id: $this->getId(), label: $this->label, base64: $base64, name: $name);
 	}
 };
 ?>

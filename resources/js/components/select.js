@@ -38,67 +38,67 @@ export default ({
 
 
 		init() {
-
-
-			if (window.Livewire !== undefined) {
-				window.Livewire.hook('commit', ({ component, succeed }) => {
-					if (component.id === LIVEWIRE_ID) {
-						succeed(() => {
-							this.$nextTick(() => {
-								this.$rover.reconcileDom();
-								this.ensureSelectedMarked();
+			this.$nextTick(() => {
+				if (window.Livewire !== undefined) {
+					window.Livewire.hook('commit', ({ component, succeed }) => {
+						if (component.id === LIVEWIRE_ID) {
+							succeed(() => {
+								this.$nextTick(() => {
+									this.$rover.reconcileDom();
+									this.ensureSelectedMarked();
+								});
 							});
-						});
+						}
+					});
+				}
+				if (searchable) {
+					let inputManager = this.$rover.input
+
+					inputManager.enableDefaultInputHandlers()
+
+					inputManager.on('keydown', (event, activeValue) => {
+						if (event.key === 'Enter' && activeValue !== undefined) {
+							this.handleSelection(activeValue)
+							this.__isMultiple || this.close()
+						}
+						if (event.key === "Escape") {
+							this.close();
+						}
+					})
+				}
+
+				let optionsManager = this.$rover.options;
+
+				this.$rover.button.on('click', () => this.handleButtonClick());
+
+				optionsManager.enableDefaultOptionsHandlers()
+
+				optionsManager.on('click', (_event, closestOption) => {
+					if (closestOption !== undefined) {
+						const value = closestOption.dataset.value;
+						if (value !== undefined) {
+							this.handleSelection(value);
+							this.__isMultiple || this.close();
+						}
 					}
 				});
-			}
-			if (searchable) {
-				let inputManager = this.$rover.input
 
-				inputManager.enableDefaultInputHandlers()
+				optionsManager.on('keydown', (event, _el, activeValue) => {
 
-				inputManager.on('keydown', (event, activeValue) => {
+					if (event.key.length === 1 && new RegExp('^[a-zA-Z0-9]$').test(event.key)) {
+						this.$rover.activateByKey(event.key);
+						return;
+					}
+
 					if (event.key === 'Enter' && activeValue !== undefined) {
 						this.handleSelection(activeValue)
 						this.__isMultiple || this.close()
 					}
+
 					if (event.key === "Escape") {
 						this.close();
 					}
-				})
-			}
-
-			let optionsManager = this.$rover.options;
-
-			this.$rover.button.on('click', () => this.handleButtonClick());
-
-			optionsManager.enableDefaultOptionsHandlers()
-
-			optionsManager.on('click', (_event, closestOption) => {
-				if (closestOption !== undefined) {
-					const value = closestOption.dataset.value;
-					if (value !== undefined) {
-						this.handleSelection(value);
-						this.__isMultiple || this.close();
-					}
-				}
-			});
-
-			optionsManager.on('keydown', (event, _el, activeValue) => {
-
-				if (event.key.length === 1 && new RegExp('^[a-zA-Z0-9]$').test(event.key)) {
-					this.$rover.activateByKey(event.key);
-					return;
-				}
-
-				if (event.key === 'Enter' && activeValue !== undefined) {
-					this.handleSelection(activeValue)
-					this.__isMultiple || this.close()
-				}
-
-				if (event.key === "Escape") {
-					this.close();
-				}
+				});
 			});
 
 			Alpine.effect(() => {
@@ -263,7 +263,11 @@ export default ({
 				const getLabel = val => this.$rover.getOptionElByValue(val)?.dataset?.label || '';
 
 				if (!this.__isMultiple) {
-					bindValueToTrigger(getLabel(String(this.__state)));
+					if (!this.__state || this.__state === '') {
+						bindValueToTrigger(placeholder);
+					} else {
+						bindValueToTrigger(getLabel(String(this.__state)) || placeholder);
+					}
 				} else if (!this.__state || this.__state.length === 0) {
 					bindValueToTrigger(placeholder);
 				} else if (this.__state.length === 1) {

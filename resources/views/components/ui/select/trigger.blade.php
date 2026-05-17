@@ -13,16 +13,16 @@
 
 @php
 	$classes = [
-		'border-red-600/30 border-2 data-open:border-red-600/30 data-open:ring-red-600/20 ' => $invalid,
-		'border-black/10 data-open:border-black/15 data-open:ring-neutral-900/15 ' => !$invalid,
-		'border bg-white border-gray-300 rounded-box text-start',
-		'data-open:ring-2 data-open:ring-offset-0 data-open:outline-none',
-		'col-span-4 col-start-1 row-start-1 justify-self-stretch',
-		'disabled:opacity-60 flex items-center disabled:cursor-auto cursor-pointer',
-		'overflow-hidden whitespace-nowrap truncate',
+		'border-red-600/30! border-2! data-open:border-red-600/30! data-open:ring-red-600/20!' => $invalid,
+		'border-black/10! data-open:border-black/15! data-open:ring-neutral-900/15!' => !$invalid,
+		'border! bg-white! border-gray-300! rounded-box! text-start! text-zinc-900!',
+		'data-open:ring-2! data-open:ring-offset-0! data-open:outline-none!',
+		'col-span-4! col-start-1! row-start-1! justify-self-stretch!',
+		'disabled:opacity-60! flex! items-center! disabled:cursor-auto! cursor-pointer!',
+		'overflow-hidden! whitespace-nowrap! truncate!',
 		match ($size) {
-			'sm' => 'min-h-8 p-0.5 text-sm',
-			default => 'min-h-10 p-1 pl-2',
+			'sm' => 'h-10! px-3! text-sm!',
+			default => 'h-12! px-4! text-sm!',
 		},
 	];
 @endphp

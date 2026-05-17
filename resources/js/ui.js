@@ -5,6 +5,7 @@ import selectComponent, { CreateNewOptionActivator as SelectActivator } from './
 import sliderComponent from './components/slider.js';
 
 import { registerToastStore, toastItem } from './components/toast.js';
+import rover from '@sheaf/rover';
 
 export function defineReactiveMagicProperty(name, rawObject) {
 	const instance = Alpine.reactive(rawObject);
@@ -19,6 +20,12 @@ document.addEventListener('livewire:init', () => {
 	if (typeof Alpine === 'undefined') {
 		console.error('Framework Error: Alpine is not defined during livewire:init');
 		return;
+	}
+
+	try {
+		Alpine.plugin(rover);
+	} catch (e) {
+		console.error('Failed to register Rover:', e);
 	}
 
 	try {

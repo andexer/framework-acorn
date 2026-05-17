@@ -23,17 +23,12 @@
 	$invalid ??= $name && $errors->has($name);
 
 	$classes = [
-		'isolate',
-
-		'relative flex items-stretch w-full shadow-xs disabled:shadow-none transition-colors duration-200',
-
-		'rounded-box min-h-10',
-
-		'[&:has([data-slot=input-prefix])_input]:rounded-l-none',
-
-		'[&:has([data-slot=input-suffix])_input]:rounded-r-none',
-
-		'[&:has([data-slot=input-prefix]):has([data-slot=input-suffix])_input]:rounded-none',
+		'isolate!',
+		'relative! flex! items-stretch! w-full! shadow-xs! disabled:shadow-none! transition-colors! duration-200!',
+		'rounded-box! h-12!',
+		'[&:has([data-slot=input-prefix])_input]:rounded-l-none!',
+		'[&:has([data-slot=input-suffix])_input]:rounded-r-none!',
+		'[&:has([data-slot=input-prefix]):has([data-slot=input-suffix])_input]:rounded-none!',
 	];
 
 	$hasLeftIconSlot = $leftIcon instanceof \Illuminate\View\ComponentSlot;
@@ -109,15 +104,16 @@
 
 		<input
 			@class ([
-			'z-10',
-			'inline-block border p-2 w-full text-sm text-neutral-800 disabled:text-neutral-500 placeholder-neutral-400 disabled:placeholder-neutral-400/70 ',
-			'bg-white ',
-			'disabled:cursor-not-allowed transition-colors duration-200',
-			'shadow-none disabled:shadow-none rounded-box',
-			'focus:ring-2 focus:ring-offset-0 focus:outline-none',
-			'border-black/10 focus:border-black/15 focus:ring-neutral-900/15 ' => !$invalid,
-			'border-red-600/30 border-2 focus:border-red-600/30 focus:ring-red-600/20 ' => $invalid,
-			'cursor-pointer caret-transparent select-none' => $asButton,
+			'z-10!',
+			'h-12!',
+			'inline-block! border! px-4! w-full! text-sm! text-neutral-800! disabled:text-neutral-500! placeholder-neutral-400! disabled:placeholder-neutral-400/70!',
+			'bg-white!',
+			'disabled:cursor-not-allowed! transition-colors! duration-200!',
+			'shadow-none! disabled:shadow-none! rounded-box!',
+			'focus:ring-2! focus:ring-offset-0! focus:outline-none!',
+			'border-black/10! focus:border-black/15! focus:ring-neutral-900/15!' => !$invalid,
+			'border-red-600/30! border-2! focus:border-red-600/30! focus:ring-red-600/20!' => $invalid,
+			'cursor-pointer! caret-transparent! select-none!' => $asButton,
 		])
 			name="{{ $name }}"
 			type="{{ $type }}"

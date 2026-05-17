@@ -47,6 +47,7 @@
 		<li
 			class="col-span-full [ul:is([data-loading])_&]:hidden"
 			x-rover:empty
+			@if(!$searchable) style="display: none;" @endif
 		>
 			@if ($empty instanceof \Illuminate\View\ComponentSlot)
 				{{ $empty }}
