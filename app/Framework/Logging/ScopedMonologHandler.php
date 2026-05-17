@@ -102,18 +102,66 @@ final class ScopedMonologHandler extends AbstractProcessingHandler
 		return $this->callstackIsInScope();
 	}
 
+	private const INFRASTRUCTURE_CLASSES = [
+		'Roots\Acorn\Bootstrap\HandleExceptions',
+		'Illuminate\Foundation\Bootstrap\HandleExceptions',
+	];
+
+	private const INFRASTRUCTURE_FUNCTIONS = [
+		'trigger_error',
+		'wp_trigger_error',
+		'_doing_it_wrong',
+		'_load_textdomain_just_in_time',
+	];
+
 	private function throwableIsInScope(\Throwable $exception): bool
 	{
-		if ($this->fileIsInScope($exception->getFile())) {
+		$originFile = $exception->getFile();
+
+		if ($originFile !== '' && ! $this->isInfrastructureFile($originFile) && $this->fileIsInScope($originFile)) {
 			return true;
 		}
 
 		foreach ($exception->getTrace() as $frame) {
+			if ($this->isInfrastructureFrame($frame)) {
+				continue;
+			}
+
 			$file = $frame['file'] ?? '';
 
 			if (is_string($file) && $file !== '' && $this->fileIsInScope($file)) {
 				return true;
 			}
+		}
+
+		return false;
+	}
+
+	private function isInfrastructureFrame(array $frame): bool
+	{
+		$class = $frame['class'] ?? '';
+		if ($class !== '' && in_array($class, self::INFRASTRUCTURE_CLASSES, true)) {
+			return true;
+		}
+
+		$function = $frame['function'] ?? '';
+		if ($function !== '' && in_array($function, self::INFRASTRUCTURE_FUNCTIONS, true)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private function isInfrastructureFile(string $file): bool
+	{
+		$normalized = wp_normalize_path($file);
+
+		if (preg_match('#/wp-includes/#', $normalized) || preg_match('#/wp-admin/#', $normalized)) {
+			return true;
+		}
+
+		if (str_contains($normalized, 'Bootstrap/HandleExceptions.php')) {
+			return true;
 		}
 
 		return false;

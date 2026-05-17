@@ -12,6 +12,7 @@ use App\Providers\LivewireServiceProvider;
 use App\Http\Controllers\Hook\Activate;
 use App\Http\Controllers\Hook\Deactivate;
 use App\Framework\AddonExceptionLogger;
+use App\Actions\Errors\ScopeErrorExceptionAction;
 use Roots\Acorn\Configuration\Exceptions;
 
 if (file_exists(__DIR__ . '/.env')) {
@@ -44,6 +45,8 @@ final class Framework
 				});
 			})
 			->boot();
+
+		add_filter('acorn/throw_error_exception', app(ScopeErrorExceptionAction::class), 10, 2);
 
 		add_action('plugins_loaded', fn() => $this->load_optional_files());
 	}
