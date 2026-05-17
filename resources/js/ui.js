@@ -16,9 +16,9 @@ export function defineReactiveMagicProperty(name, rawObject) {
 	window[name[0].toUpperCase() + name.slice(1)] = instance;
 }
 
-document.addEventListener('livewire:init', () => {
+document.addEventListener('alpine:init', () => {
 	if (typeof Alpine === 'undefined') {
-		console.error('Framework Error: Alpine is not defined during livewire:init');
+		console.error('Framework Error: Alpine is not defined during alpine:init');
 		return;
 	}
 

@@ -36,7 +36,7 @@ class FrameworkServiceProvider extends ServiceProvider
 		add_action('admin_enqueue_scripts', function (): void {
 			$page = sanitize_key((string) ($_GET['page'] ?? ''));
 
-			if ($page === '' || ! str_starts_with($page, 'framework-')) {
+			if ($page === '' || (! str_starts_with($page, 'framework-') && ! str_starts_with($page, 'dt24-'))) {
 				return;
 			}
 
@@ -46,7 +46,7 @@ class FrameworkServiceProvider extends ServiceProvider
 		add_action('admin_head', function (): void {
 			$page = sanitize_key((string) ($_GET['page'] ?? ''));
 
-			if ($page === '' || ! str_starts_with($page, 'framework-')) {
+			if ($page === '' || (! str_starts_with($page, 'framework-') && ! str_starts_with($page, 'dt24-'))) {
 				return;
 			}
 
