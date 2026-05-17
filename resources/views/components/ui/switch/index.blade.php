@@ -53,7 +53,7 @@
 	];
 
 	$switchClasses = [
-		'relative inline-flex items-center! justify-start! box-border! flex-shrink-0! shrink-0! cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+		'relative inline-flex items-center! justify-start! box-border! p-0! flex-shrink-0! shrink-0! cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
 		$sizeConfig['switch'],
 		$switchClass,
 	];
@@ -121,7 +121,7 @@
 
 			<label
 				id="{{ $id }}-label"
-				class="block text-start flex-1 text-sm font-medium text-black cursor-pointer select-none leading-none! self-center!"
+				class="block text-start flex-1 text-sm font-medium text-black cursor-pointer select-none leading-none! self-center! m-0! p-0!"
 				@if (!$disabled) x-on:click="_checked = !_checked" @endif
 			>
 				{{ $label }}
