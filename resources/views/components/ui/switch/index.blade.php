@@ -24,20 +24,20 @@
 		'sm' => [
 			'switch' => 'h-4! w-7! min-h-4! min-w-7! max-h-4! max-w-7! flex-shrink-0! shrink-0!',
 			'thumb' => 'h-3! w-3! min-h-3! min-w-3! max-h-3! max-w-3! flex-shrink-0! shrink-0!',
-			'activeTranslate' => 'translate-x-3!',
+			'activeTranslate' => 'translate-x-[10px]!',
 			'iconSize' => 'size-2.5!',
 		],
 		'lg' => [
 			'switch' => 'h-8! w-14! min-h-8! min-w-14! max-h-8! max-w-14! flex-shrink-0! shrink-0!',
 			'thumb' => 'h-7! w-7! min-h-7! min-w-7! max-h-7! max-w-7! flex-shrink-0! shrink-0!',
-			'activeTranslate' => 'translate-x-6!',
+			'activeTranslate' => 'translate-x-[22px]!',
 			'iconSize' => 'size-6!',
 		],
 
 		default => [
 			'switch' => 'h-6! w-11! min-h-6! min-w-11! max-h-6! max-w-11! flex-shrink-0! shrink-0!',
 			'thumb' => 'h-5! w-5! min-h-5! min-w-5! max-h-5! max-w-5! flex-shrink-0! shrink-0!',
-			'activeTranslate' => 'translate-x-5!',
+			'activeTranslate' => 'translate-x-[18px]!',
 			'iconSize' => 'size-3!',
 		],
 	};
@@ -88,7 +88,7 @@
 					<span
 						x-bind:class="_checked ?
 							'{{ $sizeConfig['activeTranslate'] }} {{ $thumbOnClass }} bg-white!' :
-							'translate-x-0! bg-white! {{ $thumbOffClass }}'"
+							'translate-x-[2px]! bg-white! {{ $thumbOffClass }}'"
 						class="{{ Arr::toCssClasses($thumbClasses) }}"
 					>
 						@if ($iconOn)
